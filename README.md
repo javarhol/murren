@@ -14,6 +14,7 @@ screen off ──30m──▶ buzz ──60m──▶ buzz ──120m──▶ b
 
 - A *compulsive* unlock restarts the clock and drops you **one rung**, never to zero. Nothing announces it.
 - If a rung is earned while you're on a forgiven unlock, the buzz waits until the screen goes off. It never buzzes in your hand.
+- **Silent means silent.** With the ringer on silent or Do Not Disturb on, rungs are still earned, but without the buzz.
 
 **What doesn't count against you**
 - **Allowed apps** (phone, texts, work chat): pick them in the app. Defaults to your phone and SMS apps.

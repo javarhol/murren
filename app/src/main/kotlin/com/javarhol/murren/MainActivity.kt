@@ -170,8 +170,8 @@ class MainActivity : Activity() {
 
         text("Feel the buzzes", 16f, bold = true)
         row(
-            smallButton("Reward") { Buzz.reward(this) },
-            smallButton("Morning") { Buzz.morning(this) },
+            smallButton("Reward") { Buzz.reward(this, preview = true) },
+            smallButton("Morning") { Buzz.morning(this, preview = true) },
         )
 
         content.addView(

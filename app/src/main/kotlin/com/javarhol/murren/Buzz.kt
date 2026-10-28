@@ -1,7 +1,9 @@
 package com.javarhol.murren
 
+import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.os.Build
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
@@ -18,11 +20,20 @@ object Buzz {
     private val MORNING_TIMINGS = longArrayOf(0, 150, 150, 150, 150, 150, 150, 600)
     private val MORNING_AMPLITUDES = intArrayOf(0, 60, 0, 120, 0, 180, 0, 255)
 
-    fun reward(ctx: Context) = play(ctx, REWARD_TIMINGS, REWARD_AMPLITUDES)
+    /** [preview] plays even when silenced, for the "Feel the buzzes" buttons. */
+    fun reward(ctx: Context, preview: Boolean = false) = play(ctx, REWARD_TIMINGS, REWARD_AMPLITUDES, preview)
 
-    fun morning(ctx: Context) = play(ctx, MORNING_TIMINGS, MORNING_AMPLITUDES)
+    fun morning(ctx: Context, preview: Boolean = false) = play(ctx, MORNING_TIMINGS, MORNING_AMPLITUDES, preview)
 
-    private fun play(ctx: Context, timings: LongArray, amplitudes: IntArray) {
+    /** Silent ringer or Do Not Disturb means no buzzes. */
+    fun isSilenced(ctx: Context): Boolean {
+        val ringer = ctx.getSystemService(AudioManager::class.java)!!.ringerMode
+        val filter = ctx.getSystemService(NotificationManager::class.java)!!.currentInterruptionFilter
+        return ringer == AudioManager.RINGER_MODE_SILENT || filter > NotificationManager.INTERRUPTION_FILTER_ALL
+    }
+
+    private fun play(ctx: Context, timings: LongArray, amplitudes: IntArray, preview: Boolean) {
+        if (!preview && isSilenced(ctx)) return
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ctx.getSystemService(VibratorManager::class.java)!!.defaultVibrator
         } else {
@@ -35,7 +46,7 @@ object Buzz {
         } else {
             VibrationEffect.createWaveform(timings, -1)
         }
-        // Alarm usage so the reward still arrives when the ringer is on silent.
+        // Silence is checked above; alarm usage keeps a background vibration from being dropped.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             vibrator.vibrate(effect, VibrationAttributes.createForUsage(VibrationAttributes.USAGE_ALARM))
         } else {
