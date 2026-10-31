@@ -11,11 +11,13 @@ class AlarmReceiver : BroadcastReceiver() {
             Alarms.QUIET_START -> Engine.onQuietStart(ctx)
             Alarms.QUIET_END -> Engine.onQuietEnd(ctx)
         }
+        // Revive the watcher if Android killed it; exact alarms may start foreground services.
+        if (Prefs(ctx).enabled) runCatching { WatchService.start(ctx) }
     }
 }
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(ctx: Context, intent: Intent) {
-        if (Prefs(ctx).enabled) WatchService.start(ctx)
+        if (Prefs(ctx).enabled) runCatching { WatchService.start(ctx) }
     }
 }

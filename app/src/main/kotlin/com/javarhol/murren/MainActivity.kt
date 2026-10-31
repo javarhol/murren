@@ -58,6 +58,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        if (p.enabled) WatchService.start(this) // no-op if already running
         render()
     }
 

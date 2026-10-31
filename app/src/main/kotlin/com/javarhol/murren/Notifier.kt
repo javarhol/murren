@@ -11,9 +11,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 
 object Notifier {
-    private const val CHANNEL_PACE = "pace"
+    private const val CHANNEL_PACE = "pace_clock"
     private const val CHANNEL_SUMMARY = "summary"
-    private const val OLD_CHANNEL_SERVICE = "service"
+    private val OLD_CHANNELS = listOf("service", "pace")
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
     private const val FIVE_MIN = 5 * 60_000L
@@ -24,12 +24,16 @@ object Notifier {
 
     fun createChannels(ctx: Context) {
         val nm = ctx.getSystemService(NotificationManager::class.java)!!
-        nm.deleteNotificationChannel(OLD_CHANNEL_SERVICE)
+        OLD_CHANNELS.forEach { nm.deleteNotificationChannel(it) }
         nm.createNotificationChannel(
-            // LOW, not MIN: MIN hides the status bar icon and can't be promoted to a Live Update.
-            NotificationChannel(CHANNEL_PACE, "Pace clock", NotificationManager.IMPORTANCE_LOW).apply {
+            // DEFAULT, with sound and vibration off: LOW and MIN count as "silent", which the
+            // lock screen hides by default. Channel importance is fixed once created.
+            NotificationChannel(CHANNEL_PACE, "Pace clock", NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = "Your pace in the status bar and on the lock screen. Never makes a sound."
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                setSound(null, null)
+                enableVibration(false)
+                enableLights(false)
                 setShowBadge(false)
             },
         )

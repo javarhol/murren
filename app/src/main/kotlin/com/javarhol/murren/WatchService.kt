@@ -50,11 +50,7 @@ class WatchService : Service() {
     override fun onCreate() {
         super.onCreate()
         Notifier.createChannels(this)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(Notifier.ID_PACE, Notifier.pace(this), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-        } else {
-            startForeground(Notifier.ID_PACE, Notifier.pace(this))
-        }
+        goForeground()
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_USER_PRESENT)
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -71,7 +67,19 @@ class WatchService : Service() {
         Notifier.showPace(this, force = true)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Every startForegroundService call must be answered, even when already running.
+        goForeground()
+        return START_STICKY
+    }
+
+    private fun goForeground() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(Notifier.ID_PACE, Notifier.pace(this), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(Notifier.ID_PACE, Notifier.pace(this))
+        }
+    }
 
     override fun onDestroy() {
         stopTicking()
