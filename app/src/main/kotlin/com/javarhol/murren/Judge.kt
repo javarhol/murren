@@ -13,13 +13,28 @@ object Judge {
 
     fun judge(ctx: Context, p: Prefs, start: Long, end: Long): Engine.Verdict {
         val apps = if (hasUsageAccess(ctx)) appsUsed(ctx, start, end) else null
-        val allowed = p.allowlist + ctx.packageName
-        if (!apps.isNullOrEmpty() && apps.all { it in allowed }) return Engine.Verdict.PEOPLE
+        if (!apps.isNullOrEmpty() && apps.all { isAllowed(ctx, p, it) }) return Engine.Verdict.PEOPLE
         // Quick checks are forgiven, but only a few an hour: rapid checking is the habit itself.
         if (end - start <= p.graceSec * 1_000L && p.recentQuickChecks(end) < Engine.QUICK_CHECKS_PER_HOUR) {
             return Engine.Verdict.QUICK
         }
         return Engine.Verdict.COMPULSIVE
+    }
+
+    /** Whether an app counts as allowed: the allowlist plus Mürren itself. */
+    fun isAllowed(ctx: Context, p: Prefs, pkg: String) = pkg == ctx.packageName || pkg in p.allowlist
+
+    /** The app most recently brought to the foreground, or null if none in the last 10 minutes. */
+    fun foregroundApp(ctx: Context, now: Long): String? {
+        if (!hasUsageAccess(ctx)) return null
+        val events = ctx.getSystemService(UsageStatsManager::class.java)!!.queryEvents(now - 10 * 60_000, now + 1_000)
+        val event = UsageEvents.Event()
+        var latest: String? = null
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) latest = event.packageName
+        }
+        return latest
     }
 
     fun hasUsageAccess(ctx: Context): Boolean {

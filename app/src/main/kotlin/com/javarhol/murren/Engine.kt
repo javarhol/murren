@@ -115,6 +115,7 @@ object Engine {
         p.overnightClean = true
         p.day(p.dayKey).dayEnd = now
         Notifier.postSummary(ctx, p.dayKey)
+        Notifier.showPace(ctx)
         Alarms.scheduleQuiet(ctx, p, now)
     }
 
@@ -130,6 +131,7 @@ object Engine {
             p.day(p.dayKey).overnight = if (clean) Day.OVERNIGHT_CLEAN else Day.OVERNIGHT_BROKEN
             if (clean) Buzz.morning(ctx)
         }
+        Notifier.showPace(ctx)
         Alarms.scheduleQuiet(ctx, p, now)
     }
 

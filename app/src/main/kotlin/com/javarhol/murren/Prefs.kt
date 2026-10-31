@@ -34,6 +34,11 @@ class Prefs(context: Context) {
     var overnightClean by Pref(sp, "overnightClean", false)
     private var quickTimes by Pref(sp, "quickTimes", "")
 
+    // Pace clock: smoothed fraction of time off the phone, as of paceAt
+    var pace by Pref(sp, "pace", 1f)
+    var paceAt by Pref(sp, "paceAt", 0L)
+    var paceOn by Pref(sp, "paceOn", false)
+
     fun recentQuickChecks(now: Long): Int =
         quickTimes.split(',').mapNotNull { it.toLongOrNull() }.count { now - it < HOUR }
 
@@ -84,6 +89,7 @@ private class Pref<T>(
         is Boolean -> sp.getBoolean(key, default)
         is Int -> sp.getInt(key, default)
         is Long -> sp.getLong(key, default)
+        is Float -> sp.getFloat(key, default)
         is String -> sp.getString(key, default)
         else -> error("Unsupported pref type for $key")
     } as T
@@ -94,6 +100,7 @@ private class Pref<T>(
             is Boolean -> edit.putBoolean(key, value)
             is Int -> edit.putInt(key, value)
             is Long -> edit.putLong(key, value)
+            is Float -> edit.putFloat(key, value)
             is String -> edit.putString(key, value)
             else -> error("Unsupported pref type for $key")
         }

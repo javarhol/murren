@@ -24,6 +24,11 @@ import android.widget.TextView
  * next buzz: a timer would be one more reason to unlock.
  */
 class MainActivity : Activity() {
+    companion object {
+        // Settings.ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS, Android 16+.
+        private const val ACTION_PROMOTION_SETTINGS = "android.settings.APP_NOTIFICATION_PROMOTION_SETTINGS"
+    }
+
     private lateinit var p: Prefs
     private lateinit var content: LinearLayout
 
@@ -83,6 +88,9 @@ class MainActivity : Activity() {
         val now = Clock.now()
         val today = Clock.dayKey(p, now)
         section("Today")
+        if (p.enabled && !Clock.inQuiet(p, now)) {
+            text("You're on pace for ${Pace.minutesPerHour(p, now)} min off phone / hour", 16f, bold = true)
+        }
         text(Summary.text(p, today, now), 16f)
 
         val earlier = p.dayKeys().filter { it < today }.take(6)
@@ -105,6 +113,25 @@ class MainActivity : Activity() {
                         "Usage access",
                         "So texting family and allowed apps don't count against you.",
                         Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
+                    ),
+                )
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            ) {
+                add(
+                    Triple(
+                        "Notifications",
+                        "So your pace shows in the status bar and on the lock screen. They never make a sound.",
+                        appNotificationSettings(),
+                    ),
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && !Notifier.canPromote(this@MainActivity)) {
+                add(
+                    Triple(
+                        "Live updates",
+                        "So your pace sits in the status bar as \"54/hr\".",
+                        Intent(ACTION_PROMOTION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName),
                     ),
                 )
             }
@@ -187,6 +214,9 @@ class MainActivity : Activity() {
             },
         )
     }
+
+    private fun appNotificationSettings() =
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
 
     private fun pickTime(initial: Int, onPicked: (Int) -> Unit) {
         TimePickerDialog(this, { _, h, m -> onPicked(h * 60 + m) }, initial / 60, initial % 60, true).show()
