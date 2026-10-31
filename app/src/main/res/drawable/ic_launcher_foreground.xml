@@ -1,35 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Eiger, Mönch and Jungfrau as seen from Mürren, left to right, each a little
-    higher than the last. Alpenglow on the summits, the moon above, and the dark
-    Schwarzmönch-style ridge in front. Peaks stay inside the 66dp safe zone.
+    The Jungfrau as seen from Mürren, traced from elevation data (AWS terrain
+    tiles) with heights stretched 1.6x so the summit reads at small sizes.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Moon -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M56.6,22 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0 Z" />
-
-    <!-- Snow: Eiger (sharp), Mönch (dome), Jungfrau (tallest, with a shoulder) -->
     <path
         android:fillColor="#EEF2F5"
-        android:pathData="M20,84 L36,42 L44,55 Q50,36 55,36 Q60,36 62,44 L71,29 L79,46 L83,44 L90,84 Z" />
-
-    <!-- Alpenglow on the summits -->
-    <group>
-        <clip-path android:pathData="M20,84 L36,42 L44,55 Q50,36 55,36 Q60,36 62,44 L71,29 L79,46 L83,44 L90,84 Z" />
-        <path
-            android:fillColor="#F2934E"
-            android:pathData="M0,0 H108 V44 L0,50 Z" />
-    </group>
-
-    <!-- Dark rock ridge in front -->
-    <path
-        android:fillColor="#2C3742"
-        android:pathData="M0,108 L0,76 L14,70 L28,75 L40,68 L52,74 L64,69 L76,75 L90,70 L108,76 L108,108 Z" />
+        android:pathData="M0,108 L0,55.8 L10.0,55.8 L27.9,49.3 L32.3,49.5 L47.8,36.2 L52.2,34.1 L57.5,34.5 L61.6,37.0 L88.6,68.7 L91.3,70.3 L97.7,67.9 L108,67.9 L108,108 Z" />
 </vector>

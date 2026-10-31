@@ -30,23 +30,22 @@ object Icons {
         return Icon.createWithBitmap(bitmap)
     }
 
-    /** Eiger, Mönch and Jungfrau: the same silhouette as the app icon. */
+    // The Jungfrau as seen from Mürren, in the launcher icon's 108-unit coordinates.
+    private val JUNGFRAU = floatArrayOf(
+        0f, 55.8f, 10f, 55.8f, 27.9f, 49.3f, 32.3f, 49.5f, 47.8f, 36.2f, 52.2f, 34.1f,
+        57.5f, 34.5f, 61.6f, 37f, 88.6f, 68.7f, 91.3f, 70.3f, 97.7f, 67.9f, 108f, 67.9f,
+    )
+
+    /** The Jungfrau: the same silhouette as the app icon. */
     fun mountain(): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        // Map the launcher icon's 108-unit coordinates onto the bitmap, centered on the peaks.
-        val k = SIZE / 72f
-        fun x(v: Float) = (v - 55f) * k + SIZE / 2f
-        fun y(v: Float) = (v - 52.5f) * k + SIZE / 2f
+        val k = SIZE / 96f
+        fun x(v: Float) = (v - 6f) * k
+        fun y(v: Float) = (v - 22f) * k
         val path = Path().apply {
-            moveTo(x(20f), y(76f))
-            lineTo(x(36f), y(42f)) // Eiger
-            lineTo(x(44f), y(55f))
-            quadTo(x(50f), y(36f), x(55f), y(36f)) // Mönch
-            quadTo(x(60f), y(36f), x(62f), y(44f))
-            lineTo(x(71f), y(29f)) // Jungfrau
-            lineTo(x(79f), y(46f))
-            lineTo(x(83f), y(44f))
-            lineTo(x(90f), y(76f))
+            moveTo(x(0f), SIZE.toFloat())
+            for (i in JUNGFRAU.indices step 2) lineTo(x(JUNGFRAU[i]), y(JUNGFRAU[i + 1]))
+            lineTo(x(108f), SIZE.toFloat())
             close()
         }
         Canvas(bitmap).drawPath(path, paint())
