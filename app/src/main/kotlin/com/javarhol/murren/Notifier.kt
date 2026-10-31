@@ -17,6 +17,7 @@ object Notifier {
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
     private const val FIVE_MIN = 5 * 60_000L
+    private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
 
     // Last pace notification posted, so ticks only re-post when something visible changed.
     private var lastShown: String? = null
@@ -75,7 +76,8 @@ object Notifier {
             builder
                 .setSmallIcon(Icons.mountain())
                 .setShortCriticalText("$minutes/hr")
-                .setRequestPromotedOngoing(true)
+            // Builder.setRequestPromotedOngoing isn't in the API 36 SDK; it only sets this extra.
+            builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
         } else {
             builder.setSmallIcon(Icons.number(minutes))
         }
