@@ -36,19 +36,32 @@ object Icons {
         57.5f, 34.5f, 61.6f, 37f, 88.6f, 68.7f, 91.3f, 70.3f, 97.7f, 67.9f, 108f, 67.9f,
     )
 
-    /** The Jungfrau: the same silhouette as the app icon. */
+    /** A round badge: the Jungfrau inside a ring, like the app icon. */
     fun mountain(): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val k = SIZE / 96f
-        fun x(v: Float) = (v - 6f) * k
-        fun y(v: Float) = (v - 22f) * k
-        val path = Path().apply {
+        val canvas = Canvas(bitmap)
+        // The app icon's visible 72-unit circle (18..90) fills the bitmap.
+        val k = SIZE / 72f
+        val c = SIZE / 2f
+        fun x(v: Float) = (v - 18f) * k
+        fun y(v: Float) = (v - 18f + 6f) * k // nudged down to leave sky inside the ring
+        val peak = Path().apply {
             moveTo(x(0f), SIZE.toFloat())
             for (i in JUNGFRAU.indices step 2) lineTo(x(JUNGFRAU[i]), y(JUNGFRAU[i + 1]))
             lineTo(x(108f), SIZE.toFloat())
             close()
         }
-        Canvas(bitmap).drawPath(path, paint())
+        canvas.save()
+        canvas.clipPath(Path().apply { addCircle(c, c, 27f * k, Path.Direction.CW) })
+        canvas.drawPath(peak, paint())
+        canvas.restore()
+        canvas.drawCircle(
+            c, c, 32.5f * k,
+            paint().apply {
+                style = Paint.Style.STROKE
+                strokeWidth = 5f * k
+            },
+        )
         return Icon.createWithBitmap(bitmap)
     }
 }
