@@ -30,16 +30,23 @@ object Icons {
         return Icon.createWithBitmap(bitmap)
     }
 
-    /** Two peaks: the Mürren mark, for when the number is shown as text beside it. */
+    /** Eiger, Mönch and Jungfrau: the same silhouette as the app icon. */
     fun mountain(): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val s = SIZE.toFloat()
+        // Map the launcher icon's 108-unit coordinates onto the bitmap, centered on the peaks.
+        val k = SIZE / 72f
+        fun x(v: Float) = (v - 55f) * k + SIZE / 2f
+        fun y(v: Float) = (v - 52.5f) * k + SIZE / 2f
         val path = Path().apply {
-            moveTo(0.04f * s, 0.86f * s)
-            lineTo(0.38f * s, 0.22f * s)
-            lineTo(0.56f * s, 0.56f * s)
-            lineTo(0.70f * s, 0.38f * s)
-            lineTo(0.96f * s, 0.86f * s)
+            moveTo(x(20f), y(76f))
+            lineTo(x(36f), y(42f)) // Eiger
+            lineTo(x(44f), y(55f))
+            quadTo(x(50f), y(36f), x(55f), y(36f)) // Mönch
+            quadTo(x(60f), y(36f), x(62f), y(44f))
+            lineTo(x(71f), y(29f)) // Jungfrau
+            lineTo(x(79f), y(46f))
+            lineTo(x(83f), y(44f))
+            lineTo(x(90f), y(76f))
             close()
         }
         Canvas(bitmap).drawPath(path, paint())
