@@ -22,6 +22,8 @@ object Engine {
         val now = Clock.now()
         p.sessionOpen = false
         p.pendingReward = false
+        if (p.restStart == 0L) p.restStart = now
+        if (!Clock.inQuiet(p, now)) Sleep.relearn(p)
         val key = Clock.dayKey(p, now)
         if (p.dayKey != key) beginDay(ctx, p, now, key) else schedule(ctx, p, now)
         Alarms.scheduleQuiet(ctx, p, now)
@@ -53,6 +55,7 @@ object Engine {
         val now = Clock.now()
         p.sessionOpen = false
         val start = p.sessionStart
+        Sleep.onSession(p, start, now)
         val verdict = Judge.judge(ctx, p, start, now)
 
         if (Clock.inQuiet(p, now)) {
@@ -131,6 +134,8 @@ object Engine {
             p.day(p.dayKey).overnight = if (clean) Day.OVERNIGHT_CLEAN else Day.OVERNIGHT_BROKEN
             if (clean) Buzz.morning(ctx)
         }
+        // Learn from last night; a new bedtime applies tonight, a new wake time tomorrow.
+        Sleep.relearn(p)
         Notifier.showPace(ctx)
         Alarms.scheduleQuiet(ctx, p, now)
     }

@@ -13,6 +13,10 @@ object Clock {
     private fun LocalDateTime.millis(): Long =
         atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
+    fun minuteOfDay(ms: Long): Int = local(ms).let { it.hour * 60 + it.minute }
+
+    fun dateKey(ms: Long): String = local(ms).toLocalDate().toString()
+
     fun inQuiet(p: Prefs, now: Long): Boolean {
         val t = local(now)
         val m = t.hour * 60 + t.minute

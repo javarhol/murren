@@ -21,7 +21,9 @@ screen off ──30m──▶ buzz ──60m──▶ buzz ──120m──▶ b
 - **Quick checks**: unlocks shorter than the grace period (20 s by default), up to 4 an hour.
 - **Screen waking for a notification**: only an actual unlock counts.
 
-**Quiet hours** (22:00–07:00 by default)
+**Quiet hours**, learned from your sleep
+- Mürren learns quiet hours from the longest overnight stretch your phone sits untouched: the median bedtime and wake time over the last 14 nights, once 3 nights are recorded. Checks under 2 minutes, like glancing at the time, don't break a night.
+- It learns from rest, not from use, so late-night scrolling can't push quiet hours later and hide from the pace clock. Until it has learned, or if you switch to manual, 22:00–07:00 or your own times apply.
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 

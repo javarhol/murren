@@ -173,14 +173,37 @@ class MainActivity : Activity() {
 
         text("Quiet hours", 16f, bold = true)
         text("No buzzes. Get through them phone-free for a morning buzz.", 14f, dim = true)
-        button("${Clock.formatMinute(p.quietStart)} – ${Clock.formatMinute(p.quietEnd)}") {
-            pickTime(p.quietStart) { start ->
-                pickTime(p.quietEnd) { end ->
-                    p.quietStart = start
-                    p.quietEnd = end
-                    Engine.reschedule(this)
-                    render()
+        val window = "${Clock.formatMinute(p.quietStart)} – ${Clock.formatMinute(p.quietEnd)}"
+        if (p.autoQuiet) {
+            val nights = Sleep.nights(p).size
+            text(
+                if (Sleep.learned(p) != null) {
+                    "$window, learned from when you sleep (last $nights nights)."
+                } else {
+                    "Learning when you sleep. Using $window until ${Sleep.NIGHTS_NEEDED} nights are recorded ($nights so far)."
+                },
+                15f,
+            )
+            button("Set manually instead") {
+                p.autoQuiet = false
+                render()
+            }
+        } else {
+            button(window) {
+                pickTime(p.quietStart) { start ->
+                    pickTime(p.quietEnd) { end ->
+                        p.quietStart = start
+                        p.quietEnd = end
+                        Engine.reschedule(this)
+                        render()
+                    }
                 }
+            }
+            button("Learn from my sleep") {
+                p.autoQuiet = true
+                if (!Clock.inQuiet(p, Clock.now())) Sleep.relearn(p)
+                Engine.reschedule(this)
+                render()
             }
         }
 

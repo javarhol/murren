@@ -16,6 +16,7 @@ class Prefs(context: Context) {
     var quietStart by Pref(sp, "quietStart", 22 * 60) // minute of day
     var quietEnd by Pref(sp, "quietEnd", 7 * 60)
     var graceSec by Pref(sp, "graceSec", 20)
+    var autoQuiet by Pref(sp, "autoQuiet", true)
     var seeded by Pref(sp, "seeded", false)
     var allowlist: Set<String>
         get() = sp.getStringSet("allowlist", emptySet())!!.toSet()
@@ -33,6 +34,10 @@ class Prefs(context: Context) {
     var overnightTracked by Pref(sp, "overnightTracked", false)
     var overnightClean by Pref(sp, "overnightClean", false)
     private var quickTimes by Pref(sp, "quickTimes", "")
+
+    // Sleep learning: when the current untouched stretch began, and recent nights
+    var restStart by Pref(sp, "restStart", 0L)
+    var nights by Pref(sp, "nights", "")
 
     // Pace clock: smoothed fraction of time off the phone, as of paceAt
     var pace by Pref(sp, "pace", 1f)
