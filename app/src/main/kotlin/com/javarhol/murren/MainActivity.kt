@@ -90,7 +90,8 @@ class MainActivity : Activity() {
         val today = Clock.dayKey(p, now)
         section("Today")
         if (p.enabled && !Clock.inQuiet(p, now)) {
-            text("You're on pace for ${Pace.minutesPerHour(p, now)} min off phone / hour", 16f, bold = true)
+            val r = Pace.reading(p, now)
+            text("You're on pace for ${r.minutesPerHour} min ${r.word} phone / hour", 16f, bold = true)
         }
         text(Summary.text(p, today, now), 16f)
 
@@ -223,6 +224,25 @@ class MainActivity : Activity() {
         row(
             smallButton("Reward") { Buzz.reward(this, preview = true) },
             smallButton("Morning") { Buzz.morning(this, preview = true) },
+        )
+
+        text("Pace clock", 16f, bold = true)
+        content.addView(
+            Switch(this).apply {
+                text = "Show time on phone (lower is better)"
+                textSize = 15f
+                isChecked = p.showTimeOn
+                setOnCheckedChangeListener { _, checked ->
+                    p.showTimeOn = checked
+                    Notifier.showPace(this@MainActivity, force = true)
+                    render()
+                }
+            },
+        )
+        text(
+            if (p.showTimeOn) "Like a running pace: get your number down." else "Showing time off phone: get your number up.",
+            14f,
+            dim = true,
         )
 
         content.addView(

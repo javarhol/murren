@@ -71,12 +71,13 @@ object Notifier {
                 .build()
         }
 
-        val minutes = Pace.minutesPerHour(p, now)
+        val r = Pace.reading(p, now)
+        val minutes = r.minutesPerHour
         builder
-            .setContentTitle("You're on pace for $minutes min off phone / hour")
-            .setContentText("On track for about ${Clock.formatDuration(roundedProjection(p, now))} off phone today")
+            .setContentTitle("You're on pace for $minutes min ${r.word} phone / hour")
+            .setContentText("On track for about ${Clock.formatDuration(rounded(r.projectedToday))} ${r.word} phone today")
         if (canPromote(ctx)) {
-            // Live Update: the status bar chip shows the mark with "54/hr" beside it.
+            // Live Update: the status bar chip shows the mark with "6/hr" beside it.
             builder
                 .setSmallIcon(Icons.mountain())
                 .setShortCriticalText("$minutes/hr")
@@ -88,7 +89,7 @@ object Notifier {
         return builder.build()
     }
 
-    private fun roundedProjection(p: Prefs, now: Long) = Pace.projectedOffToday(p, now) / FIVE_MIN * FIVE_MIN
+    private fun rounded(ms: Long) = ms / FIVE_MIN * FIVE_MIN
 
     /** Re-post the pace notification if what it shows has changed. */
     fun showPace(ctx: Context, force: Boolean = false) {
@@ -98,7 +99,8 @@ object Notifier {
         val key = if (Clock.inQuiet(p, now)) {
             "quiet"
         } else {
-            "${Pace.minutesPerHour(p, now)}|${roundedProjection(p, now)}|${canPromote(ctx)}"
+            val r = Pace.reading(p, now)
+            "${r.word}|${r.minutesPerHour}|${rounded(r.projectedToday)}|${canPromote(ctx)}"
         }
         if (!force && key == lastShown) return
         lastShown = key

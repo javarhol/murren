@@ -27,18 +27,19 @@ screen off ──30m──▶ buzz ──60m──▶ buzz ──120m──▶ b
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 
-**Pace clock.** Your status bar shows **`54/hr`**, and the lock screen shows *"You're on pace for 54 min off phone / hour · On track for about 12h 10m off phone today"*.
+**Pace clock.** Like a running pace: get your number down. Your status bar shows **`6/hr`**, and the lock screen shows *"You're on pace for 6 min on phone / hour · On track for about 1h 40m on phone today"*.
 
-- While you're in an app that isn't allowed, the number **counts down live**, about a minute per minute, like a taxi meter.
-- Put the phone down and it **starts climbing right away**. When you next pick the phone up, the lock screen shows the pace you've earned back.
-- Allowed apps never cost pace. It's hidden during quiet hours.
-- Under the hood: an exponential moving average of time off the phone, with a 45-minute half-life.
+- While you're in an app that isn't allowed, the number **counts up live**, about a minute per minute, like a taxi meter.
+- Put the phone down and it **starts falling right away**. When you next pick the phone up, the lock screen shows the time you've earned back.
+- Allowed apps never count. It's hidden during quiet hours.
+- A switch in Settings flips it to time *off* phone ("54 min off phone / hour"), where higher is better.
+- Under the hood: an exponential moving average of time on the phone, with a 45-minute half-life.
 - On Android 16+, it's a Live Update chip. If Live Updates are turned off for Mürren, the number is drawn as the status bar icon instead.
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
 **Daily summary.** One silent notification when quiet hours begin:
 
-> 6h 10m phone-free · longest stretch 2h 15m
+> 1h 40m on phone · longest stretch away 2h 15m
 > 19 unlocks — 11 for people, 3 quick checks, 5 others
 
 No streaks and no comparisons. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.

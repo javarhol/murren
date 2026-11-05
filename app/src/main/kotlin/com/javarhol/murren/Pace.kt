@@ -24,6 +24,26 @@ object Pace {
 
     fun minutesPerHour(p: Prefs, now: Long): Int = (fraction(p, now) * 60).roundToInt()
 
+    /** What the clock shows: minutes per hour and today's projection, on or off the phone. */
+    data class Reading(val minutesPerHour: Int, val projectedToday: Long, val word: String)
+
+    fun reading(p: Prefs, now: Long): Reading {
+        val off = projectedOffToday(p, now)
+        return if (p.showTimeOn) {
+            Reading(60 - minutesPerHour(p, now), (wakingSpan(p, now) - off).coerceAtLeast(0), "on")
+        } else {
+            Reading(minutesPerHour(p, now), off, "off")
+        }
+    }
+
+    private fun dayEnd(p: Prefs, now: Long) = Clock.nextAt(if (p.quietStart != p.quietEnd) p.quietStart else 0, now)
+
+    /** Today's waking hours, from the start of the day to tonight's quiet hours. */
+    private fun wakingSpan(p: Prefs, now: Long): Long {
+        val day = p.day(p.dayKey)
+        return if (day.dayStart == 0L) 0 else dayEnd(p, now) - day.dayStart
+    }
+
     /** Switch between on the phone and off it, settling the average up to now. */
     fun setOnPhone(p: Prefs, now: Long, on: Boolean) {
         if (p.paceAt != 0L && p.paceOn == on) return
@@ -38,7 +58,6 @@ object Pace {
         if (day.dayStart == 0L) return 0
         val currentSession = if (p.sessionOpen && p.paceOn) now - p.sessionStart else 0
         val offSoFar = (now - day.dayStart - day.compulsiveMs - currentSession).coerceAtLeast(0)
-        val dayEnd = Clock.nextAt(if (p.quietStart != p.quietEnd) p.quietStart else 0, now)
-        return offSoFar + ((dayEnd - now) * fraction(p, now)).toLong()
+        return offSoFar + ((dayEnd(p, now) - now) * fraction(p, now)).toLong()
     }
 }

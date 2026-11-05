@@ -17,6 +17,7 @@ class Prefs(context: Context) {
     var quietEnd by Pref(sp, "quietEnd", 7 * 60)
     var graceSec by Pref(sp, "graceSec", 20)
     var autoQuiet by Pref(sp, "autoQuiet", true)
+    var showTimeOn by Pref(sp, "showTimeOn", true) // pace as time on phone (lower is better)
     var seeded by Pref(sp, "seeded", false)
     var allowlist: Set<String>
         get() = sp.getStringSet("allowlist", emptySet())!!.toSet()

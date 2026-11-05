@@ -11,7 +11,12 @@ object Summary {
 
         val lines = mutableListOf<String>()
         if (day.overnight == Day.OVERNIGHT_CLEAN) lines += "Phone-free overnight ✓"
-        lines += "${Clock.formatDuration(phoneFree)} phone-free · longest stretch ${Clock.formatDuration(longest)}"
+        lines += if (p.showTimeOn) {
+            val onPhone = minOf(day.compulsiveMs, end - day.dayStart)
+            "${Clock.formatDuration(onPhone)} on phone · longest stretch away ${Clock.formatDuration(longest)}"
+        } else {
+            "${Clock.formatDuration(phoneFree)} phone-free · longest stretch ${Clock.formatDuration(longest)}"
+        }
         if (day.unlocks > 0) {
             val parts = listOfNotNull(
                 day.people.takeIf { it > 0 }?.let { "$it for people" },
