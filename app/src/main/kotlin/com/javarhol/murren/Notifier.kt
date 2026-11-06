@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import kotlin.math.roundToInt
 
 object Notifier {
     private const val CHANNEL_PACE = "pace_clock"
@@ -17,6 +18,7 @@ object Notifier {
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
     private const val ACCENT = 0xFF6F93AD.toInt() // dusk blue
+    private const val GLOW = 0xFFF2934E.toInt() // alpenglow
     private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
     const val ACTION_HIDE = "com.javarhol.murren.HIDE_PACE"
 
@@ -100,11 +102,9 @@ object Notifier {
         val split = now - p.day(p.dayKey).lastCompulsiveEnd
         builder
             .setContentTitle(if (p.showTimeOn) "$minutes min/hr" else "$minutes min/hr off")
-            .setContentText(
-                listOfNotNull(minutesUnderUsual(p, now)?.let { "${delta(it)} vs usual" }, "split ${Clock.formatClock(split)}")
-                    .joinToString("   "),
-            )
+            .setContentText("split ${Clock.formatClock(split)}")
             .setLargeIcon(Icons.gaugeColored(charge, ACCENT))
+        pacerLine(builder, p, now)
         if (canPromote(ctx)) {
             // Live Update: the chip shows the draining ring with the number beside it.
             builder
@@ -116,6 +116,32 @@ object Notifier {
             builder.setSmallIcon(Icons.gaugeWithNumber(charge, minutes))
         }
         return builder.build()
+    }
+
+    /**
+     * The pacer line: a dot for your pace that slides back toward the phone
+     * while you use it and forward toward the mountain while you don't, with a
+     * mark at your usual pace for this time of day.
+     */
+    private fun pacerLine(builder: Notification.Builder, p: Prefs, now: Long) {
+        val usual = History.usualPace(p, History.ghost(p, p.dayKey), now)
+        val dot = (Pace.track(Pace.onPerHour(p, now), usual) * 100).roundToInt()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            builder.setProgress(100, dot, false)
+            return
+        }
+        val style = Notification.ProgressStyle()
+            .setStyledByProgress(true)
+            .setProgressSegments(listOf(Notification.ProgressStyle.Segment(100).setColor(ACCENT)))
+            .setProgress(dot)
+            .setProgressTrackerIcon(Icons.dot(ACCENT))
+            .setProgressStartIcon(Icons.phone())
+            .setProgressEndIcon(Icons.mountain())
+        usual?.let {
+            val mark = (Pace.track(it.toDouble(), it) * 100).roundToInt().coerceIn(1, 99)
+            style.addProgressPoint(Notification.ProgressStyle.Point(mark).setColor(GLOW))
+        }
+        builder.setStyle(style)
     }
 
     /** Re-post the pace notification if what it shows has changed. */
@@ -130,7 +156,8 @@ object Notifier {
             val r = Pace.reading(p, now)
             val day = p.day(p.dayKey)
             val split = (now - day.lastCompulsiveEnd) / 60_000
-            "${r.word}|${r.minutesPerHour}|${minutesUnderUsual(p, now)}|$split|${canPromote(ctx)}"
+            val dot = (Pace.track(Pace.onPerHour(p, now), History.usualPace(p, History.ghost(p, p.dayKey), now)) * 100).roundToInt()
+            "${r.word}|${r.minutesPerHour}|$dot|$split|${canPromote(ctx)}"
         }
         if (!force && key == lastShown) return
         lastShown = key

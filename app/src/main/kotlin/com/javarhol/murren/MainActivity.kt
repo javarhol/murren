@@ -145,20 +145,20 @@ class MainActivity : Activity() {
                 .apply { topMargin = dp(12) },
         )
 
-        // Pacer bar against your usual day.
+        // The pacer line, same as on the lock screen.
         val ghost = History.ghost(p, p.dayKey)
-        Notifier.minutesUnderUsual(p, now)?.let { under ->
-            content.addView(
-                PacerBar(this, under, pal),
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    .apply { topMargin = dp(10) },
-            )
-            caps("VS ${ghost?.label?.removePrefix("your ")?.uppercase()}", 10f).apply {
-                gravity = Gravity.CENTER_HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                content.addView(this)
-            }
-        }
+        val usual = History.usualPace(p, ghost, now)
+        content.addView(
+            PacerBar(
+                this,
+                position = Pace.track(Pace.onPerHour(p, now), usual),
+                usualPosition = usual?.let { Pace.track(it.toDouble(), it) },
+                label = Notifier.minutesUnderUsual(p, now)?.let { Notifier.delta(it) },
+                pal = pal,
+            ),
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                .apply { topMargin = dp(8) },
+        )
 
         // Stats, like average pace / split on a watch.
         val awake = (now - day.dayStart).coerceAtLeast(60_000)

@@ -15,7 +15,7 @@ object Icons {
     private fun paint() = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
 
     // The Jungfrau as seen from Mürren, in the launcher icon's 108-unit coordinates.
-    private val JUNGFRAU = floatArrayOf(
+    val JUNGFRAU = floatArrayOf(
         0f, 55.8f, 10f, 55.8f, 27.9f, 49.3f, 32.3f, 49.5f, 47.8f, 36.2f, 52.2f, 34.1f,
         57.5f, 34.5f, 61.6f, 37f, 88.6f, 68.7f, 91.3f, 70.3f, 97.7f, 67.9f, 108f, 67.9f,
     )
@@ -51,6 +51,30 @@ object Icons {
 
     /** A battery-like ring: full when you've been away, draining as you use the phone. */
     fun gauge(charge: Float): Icon = ring(charge, number = null)
+
+    /** The pacer line's moving dot: a filled circle with a white rim. */
+    fun dot(color: Int): Icon {
+        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val c = SIZE / 2f
+        canvas.drawCircle(c, c, SIZE * 0.46f, paint())
+        canvas.drawCircle(c, c, SIZE * 0.34f, paint().apply { this.color = color })
+        return Icon.createWithBitmap(bitmap)
+    }
+
+    /** A small phone, for the "on the phone" end of the pacer line. */
+    fun phone(): Icon {
+        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val w = SIZE * 0.46f
+        val h = SIZE * 0.8f
+        val left = (SIZE - w) / 2
+        val top = (SIZE - h) / 2
+        val body = paint().apply { style = Paint.Style.STROKE; strokeWidth = SIZE * 0.09f }
+        canvas.drawRoundRect(left, top, left + w, top + h, SIZE * 0.1f, SIZE * 0.1f, body)
+        canvas.drawCircle(SIZE / 2f, top + h - SIZE * 0.12f, SIZE * 0.045f, paint())
+        return Icon.createWithBitmap(bitmap)
+    }
 
     /** The ring in color, for the notification's large icon. */
     fun gaugeColored(charge: Float, color: Int): Icon {

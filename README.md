@@ -41,13 +41,13 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 
 **The main screen** is a watch face for the day (dark or light, following your phone):
 - **Pace**, in big condensed numerals inside the same draining ring.
-- **Pacer bar**: a bubble that slides left when you're under your usual day and right when you're over, like a running watch's ahead/behind bar (position, not color, carries the verdict).
+- **Pacer line**: the same line as the notification, with your minutes under (−) or over (+) your usual day above the dot.
 - **Average today · current split · splits so far**, side by side.
 - **Race**: today's running total of time on phone against the ghost of your usual day (the same weekday over the last 4 weeks, or the last 7 days early on).
 - **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
-**The notification** says as little as possible: *"6 min/hr"* over *"−4 vs usual   split 1:12"*, with the draining ring beside it. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked.
+**The notification** says as little as possible: *"6 min/hr"* over *"split 1:12"*, with the draining ring beside it, and a **pacer line** across the bottom, phone on the left and mountain on the right. The dot is your pace: it slides back toward the phone while you use it and forward toward the mountain while you don't. An orange mark shows your usual pace for this time of day, so you can see whether you're ahead or behind. The app shows the same line. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked.
 
 **Daily summary.** One silent notification when quiet hours begin:
 

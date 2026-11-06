@@ -8,7 +8,6 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.view.View
-import kotlin.math.abs
 
 /**
  * The hero: your pace inside a ring that drains like a battery as you use the
@@ -66,50 +65,76 @@ class HeroRing(
 }
 
 /**
- * Like a running watch's pacer bar: the bubble slides left when you're under
- * your usual day and right when you're over. Position carries the verdict;
- * there's deliberately no red.
+ * The pacer line, same as on the lock screen: phone on the left, mountain on
+ * the right. The dot is your pace; it slides back while you use the phone and
+ * forward while you don't. The orange mark is your usual pace by this time.
  */
-class PacerBar(context: Context, private val minutesUnder: Long, private val pal: Palette) : View(context) {
+class PacerBar(
+    context: Context,
+    private val position: Float,
+    private val usualPosition: Float?,
+    private val label: String?,
+    private val pal: Palette,
+) : View(context) {
     private val d = resources.displayMetrics.density
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), (40 * d).toInt())
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), (64 * d).toInt())
     }
 
     override fun onDraw(canvas: Canvas) {
         val w = width.toFloat()
-        val cy = height / 2f
-        val h = 10 * d
-        val text = when {
-            minutesUnder > 0 -> "−$minutesUnder"
-            minutesUnder < 0 -> "+${abs(minutesUnder)}"
-            else -> "0"
-        }
-        val label = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            typeface = Style.numerals(context)
-            textSize = 22 * d
-            textAlign = Paint.Align.CENTER
-            color = pal.onDusk
-        }
-        val bubbleW = label.measureText(text) + 26 * d
-        val bubbleH = 32 * d
-        val pos = (0.5f - minutesUnder / 60f).coerceIn(0f, 1f)
-        val x = bubbleW / 2 + (w - bubbleW) * pos
-
+        val cy = height - 18 * d
+        val icon = 18 * d
+        val left = icon + 10 * d
+        val right = w - icon - 10 * d
+        val h = 6 * d
+        fun x(f: Float) = left + (right - left) * f.coerceIn(0f, 1f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        // Phone at the start.
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.8f * d
+        paint.color = pal.dim
+        canvas.drawRoundRect(4 * d, cy - icon / 2, 4 * d + icon * 0.55f, cy + icon / 2, 2.5f * d, 2.5f * d, paint)
+        // The Jungfrau at the finish.
+        paint.style = Paint.Style.FILL
+        val m = Path()
+        val ox = w - icon - 2 * d
+        val k = icon / 108f * 1.1f
+        m.moveTo(ox, cy + icon / 2)
+        for (i in Icons.JUNGFRAU.indices step 2) {
+            m.lineTo(ox + Icons.JUNGFRAU[i] * k, cy + icon / 2 - (108f - Icons.JUNGFRAU[i + 1]) * k * 0.9f)
+        }
+        m.lineTo(ox + 108f * k, cy + icon / 2)
+        m.close()
+        canvas.drawPath(m, paint)
+
+        // Track, with the part you've covered filled in.
         paint.color = pal.track
-        canvas.drawRoundRect(0f, cy - h / 2, w, cy + h / 2, h / 2, h / 2, paint)
+        canvas.drawRoundRect(left, cy - h / 2, right, cy + h / 2, h / 2, h / 2, paint)
         paint.color = pal.dusk
-        canvas.drawRoundRect(0f, cy - h / 2, x, cy + h / 2, h / 2, h / 2, paint)
+        canvas.drawRoundRect(left, cy - h / 2, x(position), cy + h / 2, h / 2, h / 2, paint)
+        usualPosition?.let {
+            paint.color = pal.glow
+            canvas.drawRoundRect(x(it) - 1.5f * d, cy - 8 * d, x(it) + 1.5f * d, cy + 8 * d, d, d, paint)
+        }
+        // The dot.
         paint.color = pal.bg
-        canvas.drawRoundRect(
-            x - bubbleW / 2 - 3 * d, cy - bubbleH / 2 - 3 * d, x + bubbleW / 2 + 3 * d, cy + bubbleH / 2 + 3 * d,
-            bubbleH, bubbleH, paint,
-        )
+        canvas.drawCircle(x(position), cy, 11 * d, paint)
         paint.color = pal.dusk
-        canvas.drawRoundRect(x - bubbleW / 2, cy - bubbleH / 2, x + bubbleW / 2, cy + bubbleH / 2, bubbleH, bubbleH, paint)
-        canvas.drawText(text, x, cy + label.textSize * 0.36f, label)
+        canvas.drawCircle(x(position), cy, 8 * d, paint)
+
+        label?.let {
+            val t = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                typeface = Style.numerals(context)
+                textSize = 18 * d
+                textAlign = Paint.Align.CENTER
+                color = pal.ink
+            }
+            val tx = x(position).coerceIn(left + 14 * d, right - 14 * d)
+            canvas.drawText(it, tx, cy - 16 * d, t)
+        }
     }
 }
 

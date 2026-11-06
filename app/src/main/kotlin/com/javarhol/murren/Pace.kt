@@ -44,6 +44,18 @@ object Pace {
         return if (day.dayStart == 0L) 0 else dayEnd(p, now) - day.dayStart
     }
 
+    /**
+     * Where the dot sits on the pacer line, from 0 (left, by the phone) to 1
+     * (right, by the mountain). The line spans 0 to 30 min/hr, or more if your
+     * usual pace is high, so everyday movement is easy to see.
+     */
+    fun track(onPerHour: Double, usualOn: Int?): Float {
+        val max = maxOf(30.0, (usualOn ?: 0) * 2.5)
+        return (1 - onPerHour / max).coerceIn(0.0, 1.0).toFloat()
+    }
+
+    fun onPerHour(p: Prefs, now: Long): Double = (1 - fraction(p, now)) * 60
+
     /** Switch between on the phone and off it, settling the average up to now. */
     fun setOnPhone(p: Prefs, now: Long, on: Boolean) {
         if (p.paceAt != 0L && p.paceOn == on) return
