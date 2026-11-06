@@ -29,7 +29,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 
-**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows *"You're on pace for 6 min on phone / hour · On track for about 1h 40m on phone today"*.
+**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows *"You're on pace for 6 min on phone / hour"*, with *"4 min under your usual Thursday · split 1h 12m"* beneath.
 
 - While you're in an app that isn't allowed, the number **counts up live**, about a minute per minute, like a taxi meter.
 - Put the phone down and it **starts falling right away**. When you next pick the phone up, the lock screen shows the time you've earned back.
