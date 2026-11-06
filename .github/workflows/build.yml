@@ -26,7 +26,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: murren-apk
+          name: zackzack-apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
       # A rolling "latest" pre-release gives the phone a stable download link.
@@ -34,10 +34,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk murren.apk
+          cp app/build/outputs/apk/debug/app-debug.apk zackzack.apk
           gh release delete latest --yes --cleanup-tag || true
-          gh release create latest murren.apk \
+          gh release create latest zackzack.apk \
             --prerelease \
             --target "$GITHUB_SHA" \
             --title "Latest build ($(git rev-parse --short HEAD))" \
-            --notes "Debug build of $GITHUB_SHA. On your phone: download murren.apk and open it to install."
+            --notes "Debug build of $GITHUB_SHA. On your phone: download zackzack.apk and open it to install."

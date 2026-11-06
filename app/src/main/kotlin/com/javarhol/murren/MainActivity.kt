@@ -66,12 +66,12 @@ class MainActivity : Activity() {
     private fun render() {
         content.removeAllViews()
         val now = Clock.now()
-        text("Mürren", 15f, bold = true, dim = true)
+        text("Zack Zack", 15f, bold = true, dim = true)
         renderSetup()
 
         if (!p.enabled) {
             text("Paused", 34f, bold = true)
-            button("Start Mürren") {
+            button("Start Zack Zack") {
                 p.enabled = true
                 WatchService.start(this)
                 render()
@@ -98,7 +98,7 @@ class MainActivity : Activity() {
 
         if (p.enabled) {
             section("")
-            button("Pause Mürren") {
+            button("Pause Zack Zack") {
                 p.enabled = false
                 WatchService.stop(this)
                 render()
@@ -280,7 +280,7 @@ class MainActivity : Activity() {
                 add(
                     Triple(
                         "Keep running",
-                        "So Android doesn't put Mürren to sleep.",
+                        "So Android doesn't put Zack Zack to sleep.",
                         Intent(
                             Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                             Uri.parse("package:$packageName"),

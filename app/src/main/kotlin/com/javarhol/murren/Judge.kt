@@ -21,7 +21,7 @@ object Judge {
         return Engine.Verdict.COMPULSIVE
     }
 
-    /** Whether an app counts as allowed: the allowlist plus Mürren itself. */
+    /** Whether an app counts as allowed: the allowlist plus this app itself. */
     fun isAllowed(ctx: Context, p: Prefs, pkg: String) = pkg == ctx.packageName || pkg in p.allowlist
 
     /** The app most recently brought to the foreground, or null if none in the last 10 minutes. */
