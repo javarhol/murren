@@ -3,15 +3,18 @@ package com.javarhol.murren
 import android.content.Context
 
 /**
- * The reward ladder.
+ * The day as a run, and its splits.
  *
- * Each day you climb 30 → 60 → 120 minutes of not unlocking, with a buzz at
- * each rung; after the top rung the day goes silent. A compulsive unlock drops
- * you one rung (never to zero, never announced) and restarts the clock from
- * screen-off. Allowlisted apps and quick checks don't count against you.
+ * Each day you climb 30 → 60 → 120 minutes of not unlocking, with a split buzz
+ * at each rung; after the top rung the day goes silent. A compulsive unlock
+ * drops you one rung (never to zero, never announced), closes the current
+ * split and restarts the clock from screen-off. Allowlisted apps and quick
+ * checks don't count against you. You start the day yourself; it finishes
+ * when quiet hours begin.
  */
 object Engine {
     private val LADDER_MINUTES = longArrayOf(30, 60, 120)
+    private const val BUZZ_UNLOCK_WINDOW_MS = 2 * 60_000L
     val DONE = LADDER_MINUTES.size
     const val QUICK_CHECKS_PER_HOUR = 4
 
@@ -45,8 +48,29 @@ object Engine {
             // The quiet-end alarm was missed; start the day without a buzz.
             beginDay(ctx, p, now, Clock.dayKey(p, now))
         }
+        // Did a split buzz just pull you back to the phone? Count it, once per buzz.
+        if (p.lastBuzzAt > 0 && now - p.lastBuzzAt < BUZZ_UNLOCK_WINDOW_MS) {
+            p.day(p.dayKey).buzzUnlocks += 1
+            p.lastBuzzAt = 0
+        }
         p.sessionOpen = true
         p.sessionStart = now
+    }
+
+    /** You tapped Start: today's pace goes live in the status bar. */
+    fun startDay(ctx: Context) {
+        val p = Prefs(ctx)
+        val now = Clock.now()
+        if (Clock.inQuiet(p, now)) return
+        p.day(p.dayKey).started = now
+        Notifier.showPace(ctx, force = true)
+    }
+
+    /** You tapped Finish early: the status bar chip goes away; tracking carries on. */
+    fun finishDay(ctx: Context) {
+        val p = Prefs(ctx)
+        p.day(p.dayKey).started = Day.FINISHED_EARLY
+        Notifier.showPace(ctx, force = true)
     }
 
     fun onScreenOff(ctx: Context) {
@@ -66,7 +90,10 @@ object Engine {
         val day = p.day(p.dayKey)
         day.unlocks += 1
         when (verdict) {
-            Verdict.PEOPLE -> day.people += 1
+            Verdict.PEOPLE -> {
+                day.people += 1
+                day.peopleMs += now - start
+            }
             Verdict.QUICK -> {
                 day.quick += 1
                 p.addQuickCheck(now)
@@ -75,6 +102,9 @@ object Engine {
                 day.compulsive += 1
                 day.compulsiveMs += now - start
                 day.longestMs = maxOf(day.longestMs, start - day.lastCompulsiveEnd)
+                History.addSplit(day, day.lastCompulsiveEnd, start, p.splitRungs)
+                History.addOnTime(day, start, now)
+                p.splitRungs = 0
                 day.lastCompulsiveEnd = now
             }
         }
@@ -116,7 +146,11 @@ object Engine {
         p.pendingReward = false
         p.overnightTracked = true
         p.overnightClean = true
-        p.day(p.dayKey).dayEnd = now
+        val day = p.day(p.dayKey)
+        day.dayEnd = now
+        // The finish line closes the last split.
+        History.addSplit(day, day.lastCompulsiveEnd, now, p.splitRungs)
+        p.splitRungs = 0
         Notifier.postSummary(ctx, p.dayKey)
         Notifier.showPace(ctx)
         Alarms.scheduleQuiet(ctx, p, now)
@@ -143,6 +177,8 @@ object Engine {
     fun reward(ctx: Context, p: Prefs, now: Long) {
         Buzz.reward(ctx)
         p.day(p.dayKey).buzzes += 1
+        p.splitRungs += 1
+        p.lastBuzzAt = now
         p.rung += 1
         p.stretchStart = now
         schedule(ctx, p, now)
@@ -156,6 +192,7 @@ object Engine {
         }
         p.dayKey = key
         p.rung = 0
+        p.splitRungs = 0
         p.pendingReward = false
         p.stretchStart = now
         val day = p.day(key)

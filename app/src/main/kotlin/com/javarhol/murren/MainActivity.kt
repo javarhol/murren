@@ -20,8 +20,9 @@ import android.widget.Switch
 import android.widget.TextView
 
 /**
- * Setup, today's summary and settings. Deliberately shows no countdown to the
- * next buzz: a timer would be one more reason to unlock.
+ * A live workout view of the day (pace, splits, the race against your usual
+ * day), then the finish summary and settings. Deliberately shows no countdown
+ * to the next split buzz: a timer would be one more reason to unlock.
  */
 class MainActivity : Activity() {
     companion object {
@@ -64,35 +65,26 @@ class MainActivity : Activity() {
 
     private fun render() {
         content.removeAllViews()
-        text("Mürren", 30f, bold = true)
-        text("A quiet buzz for every stretch you leave your phone alone.", 15f, dim = true)
-
+        val now = Clock.now()
+        text("Mürren", 15f, bold = true, dim = true)
         renderSetup()
 
-        section("")
-        if (p.enabled) {
-            text("Watching quietly. Put the phone away.", 16f)
-            button("Pause") {
-                p.enabled = false
-                WatchService.stop(this)
-                render()
-            }
-        } else {
-            text("Paused.", 16f)
-            button("Start") {
+        if (!p.enabled) {
+            text("Paused", 34f, bold = true)
+            button("Start Mürren") {
                 p.enabled = true
                 WatchService.start(this)
                 render()
             }
+        } else if (Clock.inQuiet(p, now)) {
+            text("Quiet hours", 34f, bold = true)
+            text("Goodnight. Your day starts again at ${Clock.formatMinute(p.quietEnd)}.", 16f, dim = true)
+        } else {
+            renderRun(now)
         }
 
-        val now = Clock.now()
         val today = Clock.dayKey(p, now)
-        section("Today")
-        if (p.enabled && !Clock.inQuiet(p, now)) {
-            val r = Pace.reading(p, now)
-            text("You're on pace for ${r.minutesPerHour} min ${r.word} phone / hour", 16f, bold = true)
-        }
+        section(if (p.day(today).dayEnd > 0) "Finish" else "Today so far")
         text(Summary.text(p, today, now), 16f)
 
         val earlier = p.dayKeys().filter { it < today }.take(6)
@@ -104,7 +96,144 @@ class MainActivity : Activity() {
             }
         }
 
+        if (p.enabled) {
+            section("")
+            button("Pause Mürren") {
+                p.enabled = false
+                WatchService.stop(this)
+                render()
+            }
+        }
         renderSettings()
+    }
+
+    /** The live workout view: pace, verdict bar, stats, the race against your usual day, splits. */
+    private fun renderRun(now: Long) {
+        val day = p.day(p.dayKey)
+        if (day.started == Day.NOT_STARTED) {
+            button("Start today") {
+                Engine.startDay(this)
+                render()
+            }
+            text("Your pace goes live in the status bar until quiet hours.", 14f, dim = true)
+        }
+
+        // Hero: the pace, big, like a running watch.
+        val r = Pace.reading(p, now)
+        val unit = TextView(this).apply {
+            text = "/hr\nmin ${r.word} phone"
+            textSize = 15f
+            alpha = 0.65f
+            setPadding(dp(8), 0, 0, 0)
+        }
+        val hero = TextView(this).apply {
+            text = r.minutesPerHour.toString()
+            textSize = 76f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            includeFontPadding = false
+        }
+        row(hero, unit)
+
+        val ghost = History.ghost(p, p.dayKey)
+        val usualOn = History.usualPace(p, ghost, now)
+        val onPace = 60 - Pace.minutesPerHour(p, now)
+        val usualShown = usualOn?.let { if (p.showTimeOn) it else 60 - it }
+        usualOn?.let {
+            text(
+                when {
+                    onPace < it * 0.75 -> "Under your usual pace ($usualShown/hr)"
+                    onPace > it * 1.25 -> "Over your usual pace ($usualShown/hr)"
+                    else -> "Around your usual pace ($usualShown/hr)"
+                },
+                15f,
+            )
+        }
+        content.addView(PaceBar(this, r.minutesPerHour, usualShown))
+
+        // Stats row, like average / current pace on a watch.
+        val awake = (now - day.dayStart).coerceAtLeast(60_000)
+        val onSoFar = History.todaySoFar(p, now)
+        val avgOn = (onSoFar / 60_000.0 / (awake / 3_600_000.0)).toInt()
+        val avg = if (p.showTimeOn) avgOn else 60 - avgOn
+        val vsUsual = Notifier.ghostLine(p, now)?.substringBefore(" your")?.substringBefore(" with") ?: "–"
+        row(
+            stat("AVG TODAY", "$avg/hr"),
+            stat("VS USUAL", vsUsual),
+            stat("SPLIT", Clock.formatDuration(now - day.lastCompulsiveEnd)),
+        )
+
+        // The race against your own usual day.
+        section("Race")
+        if (ghost != null) {
+            content.addView(
+                GhostChart(
+                    this,
+                    from = History.dayMinute(day.dayStart),
+                    to = History.dayMinute(Clock.nextAt(p.quietStart, now)).let {
+                        if (it <= History.dayMinute(day.dayStart)) 1439 else it
+                    },
+                    now = History.dayMinute(now),
+                    today = { m -> if (m >= History.dayMinute(now)) onSoFar else History.cumulative(History.hourly(day), m) },
+                    ghost = { m -> ghost.at(m) },
+                ),
+            )
+            text("━ Today   ┅ ${ghost.label.replaceFirstChar { it.uppercase() }}", 13f, dim = true)
+        } else {
+            text("Your usual day appears here after two days, to race against.", 14f, dim = true)
+        }
+
+        // Splits: phone-free stretches, newest first, like a lap list.
+        section("Splits")
+        val current = now - day.lastCompulsiveEnd
+        if (current >= 5 * 60_000L) {
+            splitRow("${Clock.formatMinute(Clock.minuteOfDay(day.lastCompulsiveEnd))} – now", current, p.splitRungs, live = true)
+        }
+        val splits = History.splits(day).reversed()
+        splits.forEach { s ->
+            splitRow(
+                "${Clock.formatMinute(Clock.minuteOfDay(s.start))} – ${Clock.formatMinute(Clock.minuteOfDay(s.end))}",
+                s.length,
+                s.rungs,
+                live = false,
+            )
+        }
+        if (splits.isEmpty() && current < 5 * 60_000L) text("Put the phone down to start your first split.", 14f, dim = true)
+
+        if (day.started > 0) {
+            button("Finish for today") {
+                Engine.finishDay(this)
+                render()
+            }
+        }
+    }
+
+    private fun stat(label: String, value: String) = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(0, dp(12), dp(24), 0)
+        addView(TextView(context).apply { text = label; textSize = 11f; alpha = 0.6f; letterSpacing = 0.08f })
+        addView(TextView(context).apply { text = value; textSize = 18f; typeface = Typeface.DEFAULT_BOLD })
+    }
+
+    private fun splitRow(time: String, length: Long, rungs: Int, live: Boolean) {
+        val marks = "●".repeat(rungs)
+        row(
+            TextView(this).apply {
+                text = time
+                textSize = 15f
+                minWidth = dp(130)
+            },
+            TextView(this).apply {
+                text = Clock.formatDuration(length)
+                textSize = 15f
+                typeface = Typeface.DEFAULT_BOLD
+                minWidth = dp(80)
+            },
+            TextView(this).apply {
+                text = if (live) "$marks running" else marks
+                textSize = 13f
+                alpha = 0.7f
+            },
+        )
     }
 
     private fun renderSetup() {
@@ -222,7 +351,7 @@ class MainActivity : Activity() {
 
         text("Feel the buzzes", 16f, bold = true)
         row(
-            smallButton("Reward") { Buzz.reward(this, preview = true) },
+            smallButton("Split") { Buzz.reward(this, preview = true) },
             smallButton("Morning") { Buzz.morning(this, preview = true) },
         )
 

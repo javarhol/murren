@@ -6,10 +6,12 @@ Every stretch you don't unlock your phone earns a quiet, distinctive buzz. Nothi
 
 ## How it works
 
-**The day ladder.** The timer starts when the screen turns off.
+Mürren treats your day like a run. **Start** it in the morning (one tap on the notification or in the app), and your pace goes live in the status bar. Every phone-free stretch is a **split**. Your own usual day is the **ghost** you race. When quiet hours begin, you cross the **finish**.
+
+**Splits.** The timer starts when the screen turns off.
 
 ```
-screen off ──30m──▶ buzz ──60m──▶ buzz ──120m──▶ buzz ──▶ silent for the rest of the day
+screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120m──▶ split buzz ──▶ silent for the rest of the day
 ```
 
 - A *compulsive* unlock restarts the clock and drops you **one rung**, never to zero. Nothing announces it.
@@ -37,12 +39,27 @@ screen off ──30m──▶ buzz ──60m──▶ buzz ──120m──▶ b
 - On Android 16+, it's a Live Update chip. If Live Updates are turned off for Mürren, the number is drawn as the status bar icon instead.
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
+**The main screen** is laid out like a running watch mid-workout:
+- **Pace**, big, with a bar showing it against your usual band (position, not color, carries the verdict).
+- **Average today · vs usual · current split**, side by side.
+- **Race**: today's running total of time on phone against the ghost of your usual day (the same weekday over the last 4 weeks, or the last 7 days early on).
+- **Splits**: a lap list of phone-free stretches, with a dot for each split buzz.
+- **Finish**: the day's summary.
+
+**Start and finish.** Android's Live Updates are meant for activities you start, so the status bar chip appears once you tap **Start today**, and the day finishes at quiet hours ("Finish for today" ends it early). Your pace is still tracked before you start; it just isn't in the status bar.
+
 **Daily summary.** One silent notification when quiet hours begin:
 
-> 1h 40m on phone · longest stretch away 2h 15m
+> Phone-free overnight ✓
+> 1h 40m on phone · average 5/hr
+> 6 splits · longest 2h 15m
+> Negative split ✓ (less phone in the second half)
+> 12 min under your usual Thursday
+> +22m for people · 3 quick checks
+> Unlocked right after a split buzz: 1 of 4
 > 19 unlocks — 11 for people, 3 quick checks, 5 others
 
-No streaks and no comparisons. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.
+No streaks and no comparisons. That last line checks whether the buzz itself pulls you back to the phone; if it often does, buzzes should move to your next pickup. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.
 
 ## Install
 

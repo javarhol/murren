@@ -18,6 +18,8 @@ object Notifier {
     private const val ID_SUMMARY = 2
     private const val FIVE_MIN = 5 * 60_000L
     private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
+    const val ACTION_START = "com.javarhol.murren.START_DAY"
+    const val ACTION_FINISH = "com.javarhol.murren.FINISH_DAY"
 
     // Last pace notification posted, so ticks only re-post when something visible changed.
     private var lastShown: String? = null
@@ -38,7 +40,7 @@ object Notifier {
             },
         )
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL_SUMMARY, "Evening summary", NotificationManager.IMPORTANCE_LOW).apply {
+            NotificationChannel(CHANNEL_SUMMARY, "Finish summary", NotificationManager.IMPORTANCE_LOW).apply {
                 setShowBadge(false)
             },
         )
@@ -48,6 +50,27 @@ object Notifier {
         PendingIntent.getActivity(
             ctx, 0, Intent(ctx, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE,
         )
+
+    private fun action(ctx: Context, action: String, code: Int, title: String): Notification.Action {
+        val pi = PendingIntent.getBroadcast(
+            ctx, code, Intent(ctx, AlarmReceiver::class.java).setAction(action),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        return Notification.Action.Builder(Icons.mountain(), title, pi).build()
+    }
+
+    /** "4 min under your usual Thursday", or null until there's a usual day to compare with. */
+    fun ghostLine(p: Prefs, now: Long): String? {
+        val ghost = History.ghost(p, p.dayKey) ?: return null
+        val start = History.dayMinute(p.day(p.dayKey).dayStart)
+        val usual = ghost.at(History.dayMinute(now)) - ghost.at(start)
+        val diff = (usual - History.todaySoFar(p, now)) / 60_000
+        return when {
+            diff > 0 -> "$diff min under ${ghost.label}"
+            diff < 0 -> "${-diff} min over ${ghost.label}"
+            else -> "Even with ${ghost.label}"
+        }
+    }
 
     fun canPromote(ctx: Context): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
@@ -73,9 +96,26 @@ object Notifier {
 
         val r = Pace.reading(p, now)
         val minutes = r.minutesPerHour
+        val day = p.day(p.dayKey)
+
+        if (day.started == Day.NOT_STARTED) {
+            // Live Updates are for activities you start, so the day waits for you.
+            return builder
+                .setSmallIcon(Icons.mountain())
+                .setContentTitle("Start today when you're ready")
+                .setContentText("Your pace goes live in the status bar: $minutes/hr right now.")
+                .addAction(action(ctx, ACTION_START, 10, "Start today"))
+                .build()
+        }
+
+        val split = Clock.formatDuration(now - day.lastCompulsiveEnd)
         builder
             .setContentTitle("You're on pace for $minutes min ${r.word} phone / hour")
-            .setContentText("On track for about ${Clock.formatDuration(rounded(r.projectedToday))} ${r.word} phone today")
+            .setContentText(listOfNotNull(ghostLine(p, now), "split $split").joinToString(" · "))
+        if (day.started == Day.FINISHED_EARLY) {
+            return builder.setSmallIcon(Icons.mountain()).build()
+        }
+        builder.addAction(action(ctx, ACTION_FINISH, 11, "Finish for today"))
         if (canPromote(ctx)) {
             // Live Update: the status bar chip shows the mark with "6/hr" beside it.
             builder
@@ -89,8 +129,6 @@ object Notifier {
         return builder.build()
     }
 
-    private fun rounded(ms: Long) = ms / FIVE_MIN * FIVE_MIN
-
     /** Re-post the pace notification if what it shows has changed. */
     fun showPace(ctx: Context, force: Boolean = false) {
         val p = Prefs(ctx)
@@ -100,7 +138,9 @@ object Notifier {
             "quiet"
         } else {
             val r = Pace.reading(p, now)
-            "${r.word}|${r.minutesPerHour}|${rounded(r.projectedToday)}|${canPromote(ctx)}"
+            val day = p.day(p.dayKey)
+            val split = (now - day.lastCompulsiveEnd) / FIVE_MIN
+            "${r.word}|${r.minutesPerHour}|${day.started.coerceIn(-1, 1)}|${ghostLine(p, now)}|$split|${canPromote(ctx)}"
         }
         if (!force && key == lastShown) return
         lastShown = key
@@ -112,7 +152,7 @@ object Notifier {
         val text = Summary.text(Prefs(ctx), key, Clock.now())
         val notification = Notification.Builder(ctx, CHANNEL_SUMMARY)
             .setSmallIcon(Icons.mountain())
-            .setContentTitle("Today")
+            .setContentTitle("Finish")
             .setContentText(text.lineSequence().first())
             .setStyle(Notification.BigTextStyle().bigText(text))
             .setContentIntent(openApp(ctx))

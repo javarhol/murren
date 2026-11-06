@@ -32,6 +32,8 @@ class Prefs(context: Context) {
     var sessionOpen by Pref(sp, "sessionOpen", false)
     var sessionStart by Pref(sp, "sessionStart", 0L)
     var pendingReward by Pref(sp, "pendingReward", false)
+    var splitRungs by Pref(sp, "splitRungs", 0) // split buzzes earned in the current stretch
+    var lastBuzzAt by Pref(sp, "lastBuzzAt", 0L)
     var overnightTracked by Pref(sp, "overnightTracked", false)
     var overnightClean by Pref(sp, "overnightClean", false)
     private var quickTimes by Pref(sp, "quickTimes", "")
@@ -78,10 +80,19 @@ class Day(sp: SharedPreferences, val key: String) {
     var buzzes by Pref(sp, "d.$key.buzzes", 0)
     var overnight by Pref(sp, "d.$key.overnight", OVERNIGHT_UNKNOWN)
 
+    // Running-style record of the day
+    var started by Pref(sp, "d.$key.started", NOT_STARTED) // when you tapped Start
+    var splits by Pref(sp, "d.$key.splits", "") // phone-free stretches: start,end,rungs;...
+    var hourly by Pref(sp, "d.$key.hourly", "") // time on phone per clock hour, ms
+    var peopleMs by Pref(sp, "d.$key.peopleMs", 0L) // allowed-app time, kept separately
+    var buzzUnlocks by Pref(sp, "d.$key.buzzUnlocks", 0) // unlocks within 2 min of a split buzz
+
     companion object {
         const val OVERNIGHT_UNKNOWN = 0
         const val OVERNIGHT_CLEAN = 1
         const val OVERNIGHT_BROKEN = 2
+        const val NOT_STARTED = 0L
+        const val FINISHED_EARLY = -1L
     }
 }
 

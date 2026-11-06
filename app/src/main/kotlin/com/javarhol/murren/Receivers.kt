@@ -10,6 +10,8 @@ class AlarmReceiver : BroadcastReceiver() {
             Alarms.REWARD -> Engine.onRewardAlarm(ctx)
             Alarms.QUIET_START -> Engine.onQuietStart(ctx)
             Alarms.QUIET_END -> Engine.onQuietEnd(ctx)
+            Notifier.ACTION_START -> Engine.startDay(ctx)
+            Notifier.ACTION_FINISH -> Engine.finishDay(ctx)
         }
         // Revive the watcher if Android killed it; exact alarms may start foreground services.
         if (Prefs(ctx).enabled) runCatching { WatchService.start(ctx) }

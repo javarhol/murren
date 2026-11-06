@@ -15,6 +15,11 @@ object Clock {
 
     fun minuteOfDay(ms: Long): Int = local(ms).let { it.hour * 60 + it.minute }
 
+    fun hourOf(ms: Long): Int = local(ms).hour
+
+    fun nextHour(ms: Long): Long =
+        local(ms).withMinute(0).withSecond(0).withNano(0).plusHours(1).millis()
+
     fun dateKey(ms: Long): String = local(ms).toLocalDate().toString()
 
     fun inQuiet(p: Prefs, now: Long): Boolean {
