@@ -26,6 +26,8 @@ object Summary {
         val splits = History.splits(day).size + openSplit
         if (splits > 0) rows += "▮" to "$splits splits   ↔ ${Clock.formatClock(longest)}"
         if (History.negativeSplit(day)) rows += "↘" to "negative split"
+        val sprints = Sprint.runs(day)
+        if (sprints.isNotEmpty()) rows += "Z" to sprints.joinToString("   ") { Sprint.describe(it) }
 
         History.ghost(p, key)?.let { ghost ->
             val minute = History.dayMinute(end)

@@ -10,6 +10,7 @@ class AlarmReceiver : BroadcastReceiver() {
             Alarms.REWARD -> Engine.onRewardAlarm(ctx)
             Alarms.QUIET_START -> Engine.onQuietStart(ctx)
             Alarms.QUIET_END -> Engine.onQuietEnd(ctx)
+            Alarms.SPRINT_END -> Sprint.onEnd(ctx)
             Notifier.ACTION_HIDE -> Prefs(ctx).let { it.hiddenDay = it.dayKey }
         }
         // Revive the watcher if Android killed it; exact alarms may start foreground services.

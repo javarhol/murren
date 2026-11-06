@@ -23,6 +23,13 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Quick checks**: unlocks shorter than the grace period (20 s by default), up to 4 an hour.
 - **Screen waking for a notification**: only an actual unlock counts.
 
+**Zack Zack sprints.** Named for the Swiss-German *"zack zack!"* (quick, snap to it) from the football pitch: phone down, now.
+- Start one from the **Zack Zack** Quick Settings tile (tap again to stop) or from the app: 15, 25 or 45 minutes.
+- While it runs, the status bar chip counts down and the lock screen line runs toward the mountain.
+- Make it to the end without using the phone and you get the zack-zack buzz (two sharp taps, twice).
+- Allowed apps and quick checks don't break a sprint. Anything else ends it there, logged as how far you got ("18/25"), no failure message.
+- A sprint is something you start with a clear end, which is exactly what Android's Live Updates are meant for.
+
 **Quiet hours**, learned from your sleep
 - Mürren learns quiet hours from the longest overnight stretch your phone sits untouched: the median bedtime and wake time over the last 14 nights, once 3 nights are recorded. Checks under 2 minutes, like glancing at the time, don't break a night.
 - It learns from rest, not from use, so late-night scrolling can't push quiet hours later and hide from the pace clock. Until it has learned, or if you switch to manual, 22:00–07:00 or your own times apply.
@@ -58,6 +65,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 > 12 min under your usual Thursday
 > +22m for people · 3 quick checks
 > Unlocked right after a split buzz: 1 of 4
+> Z  25 ✓   18/25
 > 19 unlocks — 11 for people, 3 quick checks, 5 others
 
 No streaks and no comparisons. That last line checks whether the buzz itself pulls you back to the phone; if it often does, buzzes should move to your next pickup. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.

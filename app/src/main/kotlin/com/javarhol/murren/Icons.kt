@@ -52,6 +52,20 @@ object Icons {
     /** A battery-like ring: full when you've been away, draining as you use the phone. */
     fun gauge(charge: Float): Icon = ring(charge, number = null)
 
+    /** Zack Zack: a Z drawn as a bolt, same shape as the Quick Settings tile. */
+    fun zack(): Icon {
+        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
+        val pts = floatArrayOf(5.5f, 3.5f, 19f, 3.5f, 10.5f, 12f, 17.5f, 12f, 6.5f, 21.5f, 9.5f, 14.5f, 4f, 14.5f, 12.5f, 6.5f, 5.5f, 6.5f)
+        val k = SIZE / 24f
+        val path = Path().apply {
+            moveTo(pts[0] * k, pts[1] * k)
+            for (i in 2 until pts.size step 2) lineTo(pts[i] * k, pts[i + 1] * k)
+            close()
+        }
+        Canvas(bitmap).drawPath(path, paint())
+        return Icon.createWithBitmap(bitmap)
+    }
+
     /** The pacer line's moving dot: a filled circle with a white rim. */
     fun dot(color: Int): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)

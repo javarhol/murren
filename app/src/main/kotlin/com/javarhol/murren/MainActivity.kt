@@ -11,10 +11,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.os.SystemClock
 import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.Chronometer
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
@@ -176,6 +178,8 @@ class MainActivity : Activity() {
         )
         divider()
 
+        renderSprint(now, day)
+
         if (ghost != null) {
             section("RACE")
             val todayHourly = History.hourly(day)
@@ -205,6 +209,62 @@ class MainActivity : Activity() {
                 "${Clock.formatMinute(Clock.minuteOfDay(s.start))} – ${Clock.formatMinute(Clock.minuteOfDay(s.end))}",
                 s.length, s.rungs, live = false,
             )
+        }
+    }
+
+    /** Zack Zack: three choices to start, or the countdown while one runs. */
+    private fun renderSprint(now: Long, day: Day) {
+        section("ZACK ZACK")
+        if (Sprint.active(p, now)) {
+            val chrono = Chronometer(this).apply {
+                base = SystemClock.elapsedRealtime() + (p.sprintEnd - now).coerceAtLeast(0)
+                isCountDown = true
+                textSize = 46f
+                typeface = Style.numerals(context)
+                setTextColor(pal.glow)
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                setOnChronometerTickListener { if (SystemClock.elapsedRealtime() >= base) postDelayed({ render() }, 1500) }
+                start()
+            }
+            row(
+                chrono,
+                smallButton("■") {
+                    Sprint.stop(this)
+                    render()
+                },
+            )
+        } else {
+            row(*Sprint.CHOICES.map { minutes -> sprintChoice(minutes) }.toTypedArray())
+        }
+        Sprint.runs(day).reversed().forEach { run ->
+            glyphRow("Z", "${Clock.formatMinute(Clock.minuteOfDay(run.start))}   ${Sprint.describe(run)}")
+        }
+    }
+
+    private fun sprintChoice(minutes: Int) = TextView(this).apply {
+        text = android.text.SpannableStringBuilder().apply {
+            append("$minutes")
+            val s = length
+            append(" min")
+            setSpan(android.text.style.RelativeSizeSpan(0.5f), s, length, 0)
+            setSpan(android.text.style.ForegroundColorSpan(pal.dim), s, length, 0)
+        }
+        textSize = 26f
+        typeface = Style.numerals(context)
+        setTextColor(pal.ink)
+        gravity = Gravity.CENTER
+        setPadding(0, dp(10), 0, dp(10))
+        background = GradientDrawable().apply {
+            cornerRadius = dp(18).toFloat()
+            setColor(pal.track)
+            if (minutes == p.sprintMinutes) setStroke(dp(2), pal.glow)
+        }
+        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+            marginEnd = dp(8)
+        }
+        setOnClickListener {
+            Sprint.start(this@MainActivity, minutes)
+            render()
         }
     }
 
@@ -485,6 +545,7 @@ class MainActivity : Activity() {
         text("Feel the buzzes", 16f, bold = true)
         row(
             smallButton("Split") { Buzz.reward(this, preview = true) },
+            smallButton("Zack Zack") { Buzz.zackZack(this, preview = true) },
             smallButton("Morning") { Buzz.morning(this, preview = true) },
         )
 

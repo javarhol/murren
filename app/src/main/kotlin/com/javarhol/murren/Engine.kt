@@ -64,6 +64,7 @@ object Engine {
         val start = p.sessionStart
         Sleep.onSession(p, start, now)
         val verdict = Judge.judge(ctx, p, start, now)
+        if (verdict == Verdict.COMPULSIVE) Sprint.onCompulsive(ctx, start)
 
         if (Clock.inQuiet(p, now)) {
             if (verdict == Verdict.COMPULSIVE) p.overnightClean = false

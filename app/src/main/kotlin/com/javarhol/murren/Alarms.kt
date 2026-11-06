@@ -10,7 +10,8 @@ object Alarms {
     const val REWARD = "com.javarhol.murren.REWARD"
     const val QUIET_START = "com.javarhol.murren.QUIET_START"
     const val QUIET_END = "com.javarhol.murren.QUIET_END"
-    private val ALL = listOf(REWARD, QUIET_START, QUIET_END)
+    const val SPRINT_END = "com.javarhol.murren.SPRINT_END"
+    private val ALL = listOf(REWARD, QUIET_START, QUIET_END, SPRINT_END)
 
     private fun pending(ctx: Context, action: String): PendingIntent =
         PendingIntent.getBroadcast(

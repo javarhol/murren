@@ -89,6 +89,8 @@ object Notifier {
             .setContentIntent(openApp(ctx))
             .setDeleteIntent(onSwipe(ctx))
 
+        if (Sprint.active(p, now)) return sprint(ctx, builder, p, now)
+
         if (Clock.inQuiet(p, now)) {
             return builder
                 .setSmallIcon(Icons.mountain())
@@ -144,13 +146,47 @@ object Notifier {
         builder.setStyle(style)
     }
 
+    /**
+     * A Zack Zack sprint: the chip counts down, and the line runs from start
+     * to the mountain at the finish.
+     */
+    private fun sprint(ctx: Context, builder: Notification.Builder, p: Prefs, now: Long): Notification {
+        val total = (p.sprintEnd - p.sprintStart).coerceAtLeast(1)
+        val done = (((now - p.sprintStart).toDouble() / total) * 100).roundToInt().coerceIn(0, 100)
+        builder
+            .setSmallIcon(Icons.zack())
+            .setContentTitle("Zack Zack")
+            .setContentText("${p.sprintMinutes} min · → ${Clock.formatMinute(Clock.minuteOfDay(p.sprintEnd))}")
+            .setShowWhen(true)
+            .setWhen(p.sprintEnd)
+            .setUsesChronometer(true)
+            .setChronometerCountDown(true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            builder.setStyle(
+                Notification.ProgressStyle()
+                    .setStyledByProgress(true)
+                    .setProgressSegments(listOf(Notification.ProgressStyle.Segment(100).setColor(GLOW)))
+                    .setProgress(done)
+                    .setProgressTrackerIcon(Icons.dot(GLOW))
+                    .setProgressEndIcon(Icons.mountain()),
+            )
+        } else {
+            builder.setProgress(100, done, false)
+        }
+        // The chip shows the countdown, a user-started activity with an end.
+        if (canPromote(ctx)) builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
+        return builder.build()
+    }
+
     /** Re-post the pace notification if what it shows has changed. */
     fun showPace(ctx: Context, force: Boolean = false) {
         val p = Prefs(ctx)
         if (!p.enabled) return
         if (p.hiddenDay == p.dayKey && !force) return // you swiped it away today
         val now = Clock.now()
-        val key = if (Clock.inQuiet(p, now)) {
+        val key = if (Sprint.active(p, now)) {
+            "sprint|${p.sprintEnd}|${(now - p.sprintStart) * 20 / (p.sprintEnd - p.sprintStart).coerceAtLeast(1)}"
+        } else if (Clock.inQuiet(p, now)) {
             "quiet"
         } else {
             val r = Pace.reading(p, now)

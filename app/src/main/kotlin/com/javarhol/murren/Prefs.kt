@@ -35,6 +35,11 @@ class Prefs(context: Context) {
     var splitRungs by Pref(sp, "splitRungs", 0) // split buzzes earned in the current stretch
     var lastBuzzAt by Pref(sp, "lastBuzzAt", 0L)
     var hiddenDay by Pref(sp, "hiddenDay", "") // you swiped the pace away for this day
+
+    // Zack Zack sprint in progress (0 when none)
+    var sprintStart by Pref(sp, "sprintStart", 0L)
+    var sprintEnd by Pref(sp, "sprintEnd", 0L)
+    var sprintMinutes by Pref(sp, "sprintMinutes", 25)
     var overnightTracked by Pref(sp, "overnightTracked", false)
     var overnightClean by Pref(sp, "overnightClean", false)
     private var quickTimes by Pref(sp, "quickTimes", "")
@@ -86,6 +91,7 @@ class Day(sp: SharedPreferences, val key: String) {
     var hourly by Pref(sp, "d.$key.hourly", "") // time on phone per clock hour, ms
     var peopleMs by Pref(sp, "d.$key.peopleMs", 0L) // allowed-app time, kept separately
     var buzzUnlocks by Pref(sp, "d.$key.buzzUnlocks", 0) // unlocks within 2 min of a split buzz
+    var sprints by Pref(sp, "d.$key.sprints", "") // Zack Zack sprints: start,end,plannedEnd;...
 
     companion object {
         const val OVERNIGHT_UNKNOWN = 0

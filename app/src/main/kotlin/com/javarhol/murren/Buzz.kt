@@ -21,6 +21,12 @@ object Buzz {
     private val MORNING_AMPLITUDES = intArrayOf(0, 60, 0, 120, 0, 180, 0, 255)
 
     /** [preview] plays even when silenced, for the "Feel the buzzes" buttons. */
+    // Zack Zack: two sharp taps, twice.
+    private val ZACK_TIMINGS = longArrayOf(0, 40, 70, 40, 260, 40, 70, 40)
+    private val ZACK_AMPLITUDES = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255)
+
+    fun zackZack(ctx: Context, preview: Boolean = false) = play(ctx, ZACK_TIMINGS, ZACK_AMPLITUDES, preview)
+
     fun reward(ctx: Context, preview: Boolean = false) = play(ctx, REWARD_TIMINGS, REWARD_AMPLITUDES, preview)
 
     fun morning(ctx: Context, preview: Boolean = false) = play(ctx, MORNING_TIMINGS, MORNING_AMPLITUDES, preview)
