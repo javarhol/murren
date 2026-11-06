@@ -1,12 +1,12 @@
-# Zack Zack
+# Mürren
 
-Named for the Swiss-German call *"zack zack!"* (quick, snap to it) that you hear on the football pitch: phone down, zack zack. Zack Zack rewards you for leaving your phone alone. Its icon is the Jungfrau as seen from Mürren, the car-free village above Lauterbrunnen where the app began (and the name it had at first).
+Named for the car-free village above Lauterbrunnen. Its icon is the Jungfrau as seen from there. Mürren rewards you for leaving your phone alone.
 
 Every stretch you don't unlock your phone earns a quiet, distinctive buzz. Nothing appears on screen, so there's nothing to check. The buzzes get rarer as you improve, and eventually they stop. The goal is for the app to make itself unnecessary.
 
 ## How it works
 
-Zack Zack treats your day like a run. **Start** it in the morning (one tap on the notification or in the app), and your pace goes live in the status bar. Every phone-free stretch is a **split**. Your own usual day is the **ghost** you race. When quiet hours begin, you cross the **finish**.
+Mürren treats your day like a run. It starts when quiet hours end, and your pace is live in the status bar. Every phone-free stretch is a **split**. Your own usual day is the **ghost** you race. When quiet hours begin, you cross the **finish**.
 
 **Splits.** The timer starts when the screen turns off.
 
@@ -24,19 +24,19 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Screen waking for a notification**: only an actual unlock counts.
 
 **Quiet hours**, learned from your sleep
-- Zack Zack learns quiet hours from the longest overnight stretch your phone sits untouched: the median bedtime and wake time over the last 14 nights, once 3 nights are recorded. Checks under 2 minutes, like glancing at the time, don't break a night.
+- Mürren learns quiet hours from the longest overnight stretch your phone sits untouched: the median bedtime and wake time over the last 14 nights, once 3 nights are recorded. Checks under 2 minutes, like glancing at the time, don't break a night.
 - It learns from rest, not from use, so late-night scrolling can't push quiet hours later and hide from the pace clock. Until it has learned, or if you switch to manual, 22:00–07:00 or your own times apply.
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 
-**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows *"You're on pace for 6 min on phone / hour"*, with *"4 min under your usual Thursday · split 1h 12m"* beneath.
+**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows the same notification.
 
 - While you're in an app that isn't allowed, the number **counts up live**, about a minute per minute, like a taxi meter.
 - Put the phone down and it **starts falling right away**. When you next pick the phone up, the lock screen shows the time you've earned back.
 - Allowed apps never count. It's hidden during quiet hours.
 - A switch in Settings flips it to time *off* phone ("54 min off phone / hour"), where higher is better.
 - Under the hood: an exponential moving average of time on the phone, with a 45-minute half-life.
-- On Android 16+, it's a Live Update chip. If Live Updates are turned off for Zack Zack, the number is drawn as the status bar icon instead.
+- On Android 16+, it's a Live Update chip. If Live Updates are turned off for Mürren, the number is drawn as the status bar icon instead.
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
 **The main screen** is a watch face for the day (dark or light, following your phone):
@@ -47,7 +47,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
-**Start and finish.** Android's Live Updates are meant for activities you start, so the status bar chip appears once you tap **Start today**, and the day finishes at quiet hours ("Finish for today" ends it early). Your pace is still tracked before you start; it just isn't in the status bar.
+**The notification** says as little as possible: *"6 min/hr"* over *"−4 vs usual   split 1:12"*, with the draining ring beside it. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked.
 
 **Daily summary.** One silent notification when quiet hours begin:
 
@@ -66,9 +66,9 @@ No streaks and no comparisons. That last line checks whether the buzz itself pul
 
 Every push to `main` builds an APK on GitHub Actions and publishes it as the **`latest`** release.
 
-1. On your phone, open the repo's **Releases → latest** and download `zackzack.apk`.
+1. On your phone, open the repo's **Releases → latest** and download `murren.apk`.
 2. Open it and allow "Install unknown apps" for your browser when asked.
-3. In Zack Zack, grant the setup permissions (usage access, precise timing, keep running), then tap **Start**.
+3. In Mürren, grant the setup permissions (usage access, precise timing, keep running), then tap **Start**.
 
 Builds are signed with the committed debug key, so a new APK installs over the old one and keeps your data.
 

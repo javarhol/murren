@@ -9,8 +9,7 @@ import android.content.Context
  * at each rung; after the top rung the day goes silent. A compulsive unlock
  * drops you one rung (never to zero, never announced), closes the current
  * split and restarts the clock from screen-off. Allowlisted apps and quick
- * checks don't count against you. You start the day yourself; it finishes
- * when quiet hours begin.
+ * checks don't count against you. The day finishes when quiet hours begin.
  */
 object Engine {
     private val LADDER_MINUTES = longArrayOf(30, 60, 120)
@@ -55,22 +54,6 @@ object Engine {
         }
         p.sessionOpen = true
         p.sessionStart = now
-    }
-
-    /** You tapped Start: today's pace goes live in the status bar. */
-    fun startDay(ctx: Context) {
-        val p = Prefs(ctx)
-        val now = Clock.now()
-        if (Clock.inQuiet(p, now)) return
-        p.day(p.dayKey).started = now
-        Notifier.showPace(ctx, force = true)
-    }
-
-    /** You tapped Finish early: the status bar chip goes away; tracking carries on. */
-    fun finishDay(ctx: Context) {
-        val p = Prefs(ctx)
-        p.day(p.dayKey).started = Day.FINISHED_EARLY
-        Notifier.showPace(ctx, force = true)
     }
 
     fun onScreenOff(ctx: Context) {

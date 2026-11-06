@@ -16,10 +16,9 @@ object Notifier {
     private val OLD_CHANNELS = listOf("service", "pace")
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
-    private const val FIVE_MIN = 5 * 60_000L
+    private const val ACCENT = 0xFF6F93AD.toInt() // dusk blue
     private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
-    const val ACTION_START = "com.javarhol.murren.START_DAY"
-    const val ACTION_FINISH = "com.javarhol.murren.FINISH_DAY"
+    const val ACTION_HIDE = "com.javarhol.murren.HIDE_PACE"
 
     // Last pace notification posted, so ticks only re-post when something visible changed.
     private var lastShown: String? = null
@@ -51,25 +50,26 @@ object Notifier {
             ctx, 0, Intent(ctx, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE,
         )
 
-    private fun action(ctx: Context, action: String, code: Int, title: String): Notification.Action {
-        val pi = PendingIntent.getBroadcast(
-            ctx, code, Intent(ctx, AlarmReceiver::class.java).setAction(action),
+    /** Swiping the notification away hides it until tomorrow. */
+    private fun onSwipe(ctx: Context): PendingIntent =
+        PendingIntent.getBroadcast(
+            ctx, 12, Intent(ctx, AlarmReceiver::class.java).setAction(ACTION_HIDE),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        return Notification.Action.Builder(Icons.mountain(), title, pi).build()
-    }
 
-    /** "4 min under your usual Thursday", or null until there's a usual day to compare with. */
-    fun ghostLine(p: Prefs, now: Long): String? {
+    /** Minutes under (+) or over (−) your usual day so far, or null until there's a usual day. */
+    fun minutesUnderUsual(p: Prefs, now: Long): Long? {
         val ghost = History.ghost(p, p.dayKey) ?: return null
         val start = History.dayMinute(p.day(p.dayKey).dayStart)
         val usual = ghost.at(History.dayMinute(now)) - ghost.at(start)
-        val diff = (usual - History.todaySoFar(p, now)) / 60_000
-        return when {
-            diff > 0 -> "$diff min under ${ghost.label}"
-            diff < 0 -> "${-diff} min over ${ghost.label}"
-            else -> "Even with ${ghost.label}"
-        }
+        return (usual - History.todaySoFar(p, now)) / 60_000
+    }
+
+    /** "−4" under your usual day, "+6" over: a running watch's ahead/behind. */
+    fun delta(under: Long) = when {
+        under > 0 -> "−$under"
+        under < 0 -> "+${-under}"
+        else -> "±0"
     }
 
     fun canPromote(ctx: Context): Boolean =
@@ -85,38 +85,26 @@ object Notifier {
             .setShowWhen(false)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(openApp(ctx))
+            .setDeleteIntent(onSwipe(ctx))
 
         if (Clock.inQuiet(p, now)) {
             return builder
                 .setSmallIcon(Icons.mountain())
-                .setContentTitle("Quiet hours")
-                .setContentText("Goodnight. Your pace clock is back at ${Clock.formatMinute(p.quietEnd)}.")
+                .setContentTitle("☾  ${Clock.formatMinute(p.quietEnd)}")
                 .build()
         }
 
         val r = Pace.reading(p, now)
         val minutes = r.minutesPerHour
-        val day = p.day(p.dayKey)
-
-        if (day.started == Day.NOT_STARTED) {
-            // Live Updates are for activities you start, so the day waits for you.
-            return builder
-                .setSmallIcon(Icons.mountain())
-                .setContentTitle("Start today when you're ready")
-                .setContentText("Your pace goes live in the status bar: $minutes/hr right now.")
-                .addAction(action(ctx, ACTION_START, 10, "Start today"))
-                .build()
-        }
-
-        val split = Clock.formatDuration(now - day.lastCompulsiveEnd)
-        builder
-            .setContentTitle("You're on pace for $minutes min ${r.word} phone / hour")
-            .setContentText(listOfNotNull(ghostLine(p, now), "split $split").joinToString(" · "))
-        if (day.started == Day.FINISHED_EARLY) {
-            return builder.setSmallIcon(Icons.mountain()).build()
-        }
-        builder.addAction(action(ctx, ACTION_FINISH, 11, "Finish for today"))
         val charge = Pace.fraction(p, now).toFloat()
+        val split = now - p.day(p.dayKey).lastCompulsiveEnd
+        builder
+            .setContentTitle(if (p.showTimeOn) "$minutes min/hr" else "$minutes min/hr off")
+            .setContentText(
+                listOfNotNull(minutesUnderUsual(p, now)?.let { "${delta(it)} vs usual" }, "split ${Clock.formatClock(split)}")
+                    .joinToString("   "),
+            )
+            .setLargeIcon(Icons.gaugeColored(charge, ACCENT))
         if (canPromote(ctx)) {
             // Live Update: the chip shows the draining ring with the number beside it.
             builder
@@ -134,14 +122,15 @@ object Notifier {
     fun showPace(ctx: Context, force: Boolean = false) {
         val p = Prefs(ctx)
         if (!p.enabled) return
+        if (p.hiddenDay == p.dayKey && !force) return // you swiped it away today
         val now = Clock.now()
         val key = if (Clock.inQuiet(p, now)) {
             "quiet"
         } else {
             val r = Pace.reading(p, now)
             val day = p.day(p.dayKey)
-            val split = (now - day.lastCompulsiveEnd) / FIVE_MIN
-            "${r.word}|${r.minutesPerHour}|${day.started.coerceIn(-1, 1)}|${ghostLine(p, now)}|$split|${canPromote(ctx)}"
+            val split = (now - day.lastCompulsiveEnd) / 60_000
+            "${r.word}|${r.minutesPerHour}|${minutesUnderUsual(p, now)}|$split|${canPromote(ctx)}"
         }
         if (!force && key == lastShown) return
         lastShown = key

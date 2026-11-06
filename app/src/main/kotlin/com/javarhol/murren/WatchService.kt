@@ -49,6 +49,7 @@ class WatchService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        running = true
         Notifier.createChannels(this)
         goForeground()
         val filter = IntentFilter().apply {
@@ -82,6 +83,7 @@ class WatchService : Service() {
     }
 
     override fun onDestroy() {
+        running = false
         stopTicking()
         unregisterReceiver(screenReceiver)
         super.onDestroy()
@@ -117,6 +119,9 @@ class WatchService : Service() {
 
     companion object {
         private const val TICK_MS = 10_000L
+
+        @Volatile
+        var running = false
 
         fun start(ctx: Context) {
             ctx.startForegroundService(Intent(ctx, WatchService::class.java))

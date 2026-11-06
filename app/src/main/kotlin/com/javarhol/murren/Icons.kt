@@ -52,6 +52,22 @@ object Icons {
     /** A battery-like ring: full when you've been away, draining as you use the phone. */
     fun gauge(charge: Float): Icon = ring(charge, number = null)
 
+    /** The ring in color, for the notification's large icon. */
+    fun gaugeColored(charge: Float, color: Int): Icon {
+        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val c = SIZE / 2f
+        val stroke = SIZE * 0.16f
+        val r = c - stroke / 2 - SIZE * 0.04f
+        val p = paint().apply { style = Paint.Style.STROKE; strokeWidth = stroke; strokeCap = Paint.Cap.ROUND }
+        p.color = color
+        p.alpha = 70
+        canvas.drawCircle(c, c, r, p)
+        p.alpha = 255
+        canvas.drawArc(android.graphics.RectF(c - r, c - r, c + r, c + r), -90f, 360f * charge.coerceIn(0.01f, 1f), false, p)
+        return Icon.createWithBitmap(bitmap)
+    }
+
     /** The ring with the number inside, for when Android can't show text beside the icon. */
     fun gaugeWithNumber(charge: Float, value: Int): Icon = ring(charge, number = value.toString())
 

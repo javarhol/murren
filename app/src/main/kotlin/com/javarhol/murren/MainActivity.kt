@@ -65,7 +65,15 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        if (p.enabled) WatchService.start(this) // no-op if already running
+        if (p.enabled) {
+            if (!WatchService.running) {
+                WatchService.start(this)
+            } else if (p.hiddenDay.isNotEmpty()) {
+                // Opening the app brings back a pace you swiped away.
+                p.hiddenDay = ""
+                Notifier.showPace(this, force = true)
+            }
+        }
         render()
     }
 
@@ -77,46 +85,41 @@ class MainActivity : Activity() {
         // Top bar: name on the left, the day's state on the right.
         val state = when {
             !p.enabled -> pill("Paused", dot = false)
-            Clock.inQuiet(p, now) -> pill("Quiet hours", dot = false)
-            day.started > 0 -> pill("Day running · since ${Clock.formatMinute(Clock.minuteOfDay(day.started))}", dot = true)
-            day.started == Day.FINISHED_EARLY -> pill("Finished", dot = false)
-            else -> pill("Not started", dot = false)
+            Clock.inQuiet(p, now) -> pill("☾", dot = false)
+            else -> pill("Live", dot = true)
         }
-        row(caps("ZACK ZACK", 13f), View(this).apply { layoutParams = LinearLayout.LayoutParams(0, 1, 1f) }, state)
+        row(caps("MÜRREN", 13f), View(this).apply { layoutParams = LinearLayout.LayoutParams(0, 1, 1f) }, state)
         renderSetup()
 
         when {
             !p.enabled -> {
                 big("Paused")
-                button("Start Zack Zack") {
+                button("Start") {
                     p.enabled = true
                     WatchService.start(this)
                     render()
                 }
             }
-            Clock.inQuiet(p, now) -> {
-                big("Quiet hours")
-                text("Goodnight. Your day starts again at ${Clock.formatMinute(p.quietEnd)}.", 16f, dim = true)
-            }
+            Clock.inQuiet(p, now) -> big("☾  ${Clock.formatMinute(p.quietEnd)}")
             else -> renderRun(now)
         }
 
         val today = Clock.dayKey(p, now)
-        section(if (p.day(today).dayEnd > 0) "FINISH" else "TODAY SO FAR")
-        text(Summary.text(p, today, now), 15f)
+        section(if (p.day(today).dayEnd > 0) "FINISH" else "TODAY")
+        Summary.rows(p, today, now).forEach { (glyph, line) -> glyphRow(glyph, line) }
 
         val earlier = p.dayKeys().filter { it < today }.take(6)
         if (earlier.isNotEmpty()) {
             section("EARLIER")
             earlier.forEach { key ->
-                text(key, 12f, dim = true)
-                text(Summary.text(p, key, now), 14f)
+                caps(key, 10f).apply { setPadding(0, dp(10), 0, 0); content.addView(this) }
+                Summary.rows(p, key, now).forEach { (glyph, line) -> glyphRow(glyph, line) }
             }
         }
 
         if (p.enabled) {
             section("")
-            button("Pause Zack Zack") {
+            button("Pause") {
                 p.enabled = false
                 WatchService.stop(this)
                 render()
@@ -128,13 +131,6 @@ class MainActivity : Activity() {
     /** The live view: hero ring, pacer bar, stats, race, splits. */
     private fun renderRun(now: Long) {
         val day = p.day(p.dayKey)
-        if (day.started == Day.NOT_STARTED) {
-            button("Start today") {
-                Engine.startDay(this)
-                render()
-            }
-            text("Your pace goes live in the status bar until quiet hours.", 13f, dim = true)
-        }
 
         val r = Pace.reading(p, now)
         content.addView(
@@ -151,19 +147,17 @@ class MainActivity : Activity() {
 
         // Pacer bar against your usual day.
         val ghost = History.ghost(p, p.dayKey)
-        if (ghost != null) {
-            val start = History.dayMinute(day.dayStart)
-            val usual = ghost.at(History.dayMinute(now)) - ghost.at(start)
-            val under = (usual - History.todaySoFar(p, now)) / 60_000
+        Notifier.minutesUnderUsual(p, now)?.let { under ->
             content.addView(
                 PacerBar(this, under, pal),
                 LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                     .apply { topMargin = dp(10) },
             )
-            text(Notifier.ghostLine(p, now) ?: "", 13f, dim = true).gravity = Gravity.CENTER_HORIZONTAL
-        } else {
-            text("Your usual day shows up here after two days, to race against.", 13f, dim = true)
-                .gravity = Gravity.CENTER_HORIZONTAL
+            caps("VS ${ghost?.label?.removePrefix("your ")?.uppercase()}", 10f).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                content.addView(this)
+            }
         }
 
         // Stats, like average pace / split on a watch.
@@ -182,8 +176,8 @@ class MainActivity : Activity() {
         )
         divider()
 
-        section("RACE · TODAY VS ${ghost?.label?.uppercase() ?: "YOUR USUAL DAY"}")
         if (ghost != null) {
+            section("RACE")
             val todayHourly = History.hourly(day)
             content.addView(
                 GhostChart(
@@ -198,11 +192,9 @@ class MainActivity : Activity() {
                     pal = pal,
                 ),
             )
-        } else {
-            text("Nothing to race yet.", 13f, dim = true)
         }
 
-        section("SPLITS")
+        if (splitCount > 0) section("SPLITS")
         var lap = splits.size + if (current >= 5 * 60_000L) 1 else 0
         if (current >= 5 * 60_000L) {
             lapRow(lap--, "${Clock.formatMinute(Clock.minuteOfDay(day.lastCompulsiveEnd))} – now", current, p.splitRungs, live = true)
@@ -213,14 +205,6 @@ class MainActivity : Activity() {
                 "${Clock.formatMinute(Clock.minuteOfDay(s.start))} – ${Clock.formatMinute(Clock.minuteOfDay(s.end))}",
                 s.length, s.rungs, live = false,
             )
-        }
-        if (splitCount == 0) text("Put the phone down to start your first split.", 13f, dim = true)
-
-        if (day.started > 0) {
-            button("Finish for today") {
-                Engine.finishDay(this)
-                render()
-            }
         }
     }
 
@@ -307,6 +291,21 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1)),
         )
     }
+
+    private fun glyphRow(glyph: String, line: String) = row(
+        TextView(this).apply {
+            text = glyph
+            textSize = 16f
+            setTextColor(pal.dusk)
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(dp(30), LinearLayout.LayoutParams.WRAP_CONTENT)
+        },
+        TextView(this).apply {
+            text = line
+            textSize = 15f
+            setTextColor(pal.ink)
+        },
+    )
 
     private fun section(title: String) {
         caps(title, 10.5f).apply {
@@ -414,7 +413,7 @@ class MainActivity : Activity() {
                 add(
                     Triple(
                         "Keep running",
-                        "So Android doesn't put Zack Zack to sleep.",
+                        "So Android doesn't put Mürren to sleep.",
                         Intent(
                             Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                             Uri.parse("package:$packageName"),
