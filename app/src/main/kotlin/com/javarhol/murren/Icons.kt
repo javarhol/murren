@@ -14,22 +14,6 @@ object Icons {
 
     private fun paint() = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
 
-    /** The pace as a number, filling the icon. */
-    fun number(value: Int): Icon {
-        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val text = value.toString()
-        val paint = paint().apply {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            textAlign = Paint.Align.CENTER
-            textSize = SIZE.toFloat()
-        }
-        // Shrink until it fits the width, then center vertically.
-        paint.textSize *= minOf(1f, SIZE * 0.98f / paint.measureText(text))
-        val baseline = SIZE / 2f - (paint.descent() + paint.ascent()) / 2f
-        Canvas(bitmap).drawText(text, SIZE / 2f, baseline, paint)
-        return Icon.createWithBitmap(bitmap)
-    }
-
     // The Jungfrau as seen from Mürren, in the launcher icon's 108-unit coordinates.
     private val JUNGFRAU = floatArrayOf(
         0f, 55.8f, 10f, 55.8f, 27.9f, 49.3f, 32.3f, 49.5f, 47.8f, 36.2f, 52.2f, 34.1f,
@@ -62,6 +46,37 @@ object Icons {
                 strokeWidth = 5f * k
             },
         )
+        return Icon.createWithBitmap(bitmap)
+    }
+
+    /** A battery-like ring: full when you've been away, draining as you use the phone. */
+    fun gauge(charge: Float): Icon = ring(charge, number = null)
+
+    /** The ring with the number inside, for when Android can't show text beside the icon. */
+    fun gaugeWithNumber(charge: Float, value: Int): Icon = ring(charge, number = value.toString())
+
+    private fun ring(charge: Float, number: String?): Icon {
+        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val c = SIZE / 2f
+        // A thick ring alone; a thinner one when a number has to fit inside.
+        val stroke = if (number == null) SIZE * 0.19f else SIZE * 0.11f
+        val r = c - stroke / 2 - SIZE * 0.02f
+        val oval = android.graphics.RectF(c - r, c - r, c + r, c + r)
+        val p = paint().apply { style = Paint.Style.STROKE; strokeWidth = stroke }
+        p.alpha = 80
+        canvas.drawCircle(c, c, r, p)
+        p.alpha = 255
+        canvas.drawArc(oval, -90f, 360f * charge.coerceIn(0f, 1f), false, p)
+        if (number != null) {
+            val t = paint().apply {
+                typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+                textAlign = Paint.Align.CENTER
+                textSize = SIZE * 0.52f
+            }
+            t.textSize *= minOf(1f, (2 * r - stroke) * 0.92f / t.measureText(number))
+            canvas.drawText(number, c, c - (t.descent() + t.ascent()) / 2f, t)
+        }
         return Icon.createWithBitmap(bitmap)
     }
 }

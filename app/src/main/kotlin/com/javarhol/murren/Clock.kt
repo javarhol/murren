@@ -52,6 +52,12 @@ object Clock {
 
     fun formatMinute(minuteOfDay: Int): String = "%02d:%02d".format(minuteOfDay / 60, minuteOfDay % 60)
 
+    /** Like a split on a watch: "1:12" for an hour and twelve minutes. */
+    fun formatClock(ms: Long): String {
+        val minutes = ms / 60_000
+        return "%d:%02d".format(minutes / 60, minutes % 60)
+    }
+
     fun formatDuration(ms: Long): String {
         val minutes = ms / 60_000
         val h = minutes / 60

@@ -116,15 +116,16 @@ object Notifier {
             return builder.setSmallIcon(Icons.mountain()).build()
         }
         builder.addAction(action(ctx, ACTION_FINISH, 11, "Finish for today"))
+        val charge = Pace.fraction(p, now).toFloat()
         if (canPromote(ctx)) {
-            // Live Update: the status bar chip shows the mark with "6/hr" beside it.
+            // Live Update: the chip shows the draining ring with the number beside it.
             builder
-                .setSmallIcon(Icons.mountain())
-                .setShortCriticalText("$minutes/hr")
+                .setSmallIcon(Icons.gauge(charge))
+                .setShortCriticalText("$minutes")
             // Builder.setRequestPromotedOngoing isn't in the API 36 SDK; it only sets this extra.
             builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
         } else {
-            builder.setSmallIcon(Icons.number(minutes))
+            builder.setSmallIcon(Icons.gaugeWithNumber(charge, minutes))
         }
         return builder.build()
     }

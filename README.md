@@ -29,7 +29,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 
-**Pace clock.** Like a running pace: get your number down. Your status bar shows **`6/hr`**, and the lock screen shows *"You're on pace for 6 min on phone / hour · On track for about 1h 40m on phone today"*.
+**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows *"You're on pace for 6 min on phone / hour · On track for about 1h 40m on phone today"*.
 
 - While you're in an app that isn't allowed, the number **counts up live**, about a minute per minute, like a taxi meter.
 - Put the phone down and it **starts falling right away**. When you next pick the phone up, the lock screen shows the time you've earned back.
@@ -39,11 +39,12 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - On Android 16+, it's a Live Update chip. If Live Updates are turned off for Zack Zack, the number is drawn as the status bar icon instead.
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
-**The main screen** is laid out like a running watch mid-workout:
-- **Pace**, big, with a bar showing it against your usual band (position, not color, carries the verdict).
-- **Average today · vs usual · current split**, side by side.
+**The main screen** is a watch face for the day (dark or light, following your phone):
+- **Pace**, in big condensed numerals inside the same draining ring.
+- **Pacer bar**: a bubble that slides left when you're under your usual day and right when you're over, like a running watch's ahead/behind bar (position, not color, carries the verdict).
+- **Average today · current split · splits so far**, side by side.
 - **Race**: today's running total of time on phone against the ghost of your usual day (the same weekday over the last 4 weeks, or the last 7 days early on).
-- **Splits**: a lap list of phone-free stretches, with a dot for each split buzz.
+- **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
 **Start and finish.** Android's Live Updates are meant for activities you start, so the status bar chip appears once you tap **Start today**, and the day finishes at quiet hours ("Finish for today" ends it early). Your pace is still tracked before you start; it just isn't in the status bar.
@@ -95,3 +96,7 @@ Builds are signed with the committed debug key, so a new APK installs over the o
 - **Multi-day fading**: phases that move from 30/60/120 to 60/120, then 120 only, then rare random buzzes, then summary only, advancing on a rolling 3-day window (about 66 days is the median for a habit to stick).
 - **Pause before chosen apps** (one sec style): a short breathing overlay, no typing.
 - **Watch rewards**: buzz on the wrist instead of the phone (Pebble first). Probably the path to iPhone, where apps can't detect unlocks or vibrate from the background.
+
+## Credits
+
+Numerals are set in [Barlow Condensed](https://github.com/jpt/barlow) by Jeremy Tribby, licensed under the SIL Open Font License 1.1 (`app/src/main/assets/fonts/OFL.txt`).
