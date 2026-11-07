@@ -68,7 +68,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 > Buzz → unlock: 1 of 4
 > Zack Zack: 25 ✓ · 18/25
 
-No streaks and no comparisons. That last line checks whether the buzz itself pulls you back to the phone; if it often does, buzzes should move to your next pickup. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.
+No streaks and no comparisons. The "Buzz → unlock" line checks whether the buzz itself pulls you back to the phone; if it often does, buzzes should move to your next pickup. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.
 
 ## Install
 
