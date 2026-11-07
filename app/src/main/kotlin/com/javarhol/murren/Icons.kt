@@ -69,10 +69,7 @@ object Icons {
     /** The ring with the number inside, for when Android can't show text beside the icon. */
     fun gaugeWithNumber(charge: Float, value: Int): Icon = ring(charge, number = value.toString())
 
-    /** The same ring and number in color, for the notification's large icon. */
-    fun ringColored(charge: Float, value: Int, color: Int): Icon = ring(charge, value.toString(), color)
-
-    private fun ring(charge: Float, number: String?, color: Int? = null): Icon {
+    private fun ring(charge: Float, number: String?): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val c = SIZE / 2f
@@ -81,7 +78,6 @@ object Icons {
         val r = c - stroke / 2 - SIZE * 0.02f
         val oval = android.graphics.RectF(c - r, c - r, c + r, c + r)
         val p = paint().apply { style = Paint.Style.STROKE; strokeWidth = stroke }
-        color?.let { p.color = it }
         p.alpha = 80
         canvas.drawCircle(c, c, r, p)
         p.alpha = 255
@@ -92,7 +88,6 @@ object Icons {
                 textAlign = Paint.Align.CENTER
                 textSize = SIZE * 0.52f
             }
-            color?.let { t.color = it }
             t.textSize *= minOf(1f, (2 * r - stroke) * 0.92f / t.measureText(number))
             canvas.drawText(number, c, c - (t.descent() + t.ascent()) / 2f, t)
         }

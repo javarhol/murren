@@ -64,14 +64,6 @@ object Style {
         }
     }
 
-    /** A mid-tone accent that reads on both light and dark notification cards. */
-    fun notificationAccent(ctx: Context): Int =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ctx.getColor(android.R.color.system_accent1_400)
-        } else {
-            0xFF6F93AD.toInt()
-        }
-
     /** The system font, bold, for the numbers. */
     @Suppress("UNUSED_PARAMETER")
     fun numerals(ctx: Context): Typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
