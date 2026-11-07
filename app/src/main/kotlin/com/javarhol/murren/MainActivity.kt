@@ -108,14 +108,14 @@ class MainActivity : Activity() {
 
         val today = Clock.dayKey(p, now)
         section(if (p.day(today).dayEnd > 0) "FINISH" else "TODAY")
-        Summary.rows(p, today, now).forEach { (glyph, line) -> glyphRow(glyph, line) }
+        Summary.rows(p, today, now).forEach { (label, line) -> labelRow(label, line) }
 
         val earlier = p.dayKeys().filter { it < today }.take(6)
         if (earlier.isNotEmpty()) {
             section("EARLIER")
             earlier.forEach { key ->
                 caps(key, 10f).apply { setPadding(0, dp(10), 0, 0); content.addView(this) }
-                Summary.rows(p, key, now).forEach { (glyph, line) -> glyphRow(glyph, line) }
+                Summary.rows(p, key, now).forEach { (label, line) -> labelRow(label, line) }
             }
         }
 
@@ -237,7 +237,7 @@ class MainActivity : Activity() {
             row(*Sprint.CHOICES.map { minutes -> sprintChoice(minutes) }.toTypedArray())
         }
         Sprint.runs(day).reversed().forEach { run ->
-            glyphRow("Z", "${Clock.formatMinute(Clock.minuteOfDay(run.start))}   ${Sprint.describe(run)}")
+            labelRow(Clock.formatMinute(Clock.minuteOfDay(run.start)), Sprint.describe(run))
         }
     }
 
@@ -352,13 +352,12 @@ class MainActivity : Activity() {
         )
     }
 
-    private fun glyphRow(glyph: String, line: String) = row(
+    private fun labelRow(label: String, line: String) = row(
         TextView(this).apply {
-            text = glyph
-            textSize = 16f
-            setTextColor(pal.dusk)
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(dp(30), LinearLayout.LayoutParams.WRAP_CONTENT)
+            text = label
+            textSize = 13f
+            setTextColor(pal.dim)
+            layoutParams = LinearLayout.LayoutParams(dp(112), LinearLayout.LayoutParams.WRAP_CONTENT)
         },
         TextView(this).apply {
             text = line
@@ -454,7 +453,7 @@ class MainActivity : Activity() {
                 add(
                     Triple(
                         "Live updates",
-                        "So your pace sits in the status bar as \"54/hr\".",
+                        "So Zack Zack sprints count down in the status bar.",
                         Intent(ACTION_PROMOTION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName),
                     ),
                 )

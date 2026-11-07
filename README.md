@@ -36,14 +36,14 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 
-**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows the same compact notification.
+**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace inside it. The lock screen shows the same compact notification.
 
 - While you're in an app that isn't allowed, the number **counts up live**, a minute per minute, like a taxi meter.
 - Put the phone down and it **falls as those minutes roll out of the hour**. When you next pick the phone up, the lock screen shows the time you've earned back.
 - Allowed apps never count. It's hidden during quiet hours.
 - A switch in Settings flips it to time *off* phone ("54 min off phone / hour"), where higher is better.
 - Under the hood: minutes on the phone in the last 60 minutes, so an hour away always reads 0.
-- On Android 16+, it's a Live Update chip. If Live Updates are turned off for Mürren, the number is drawn as the status bar icon instead.
+- It's an ordinary notification, not a Live Update, so the lock-screen card stays compact (Android gives Live Updates a taller card). Zack Zack sprints are Live Updates, with a countdown chip.
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
 **The main screen** is a watch face for the day (dark or light, following your phone):
@@ -54,19 +54,19 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
-**The notification** is one compact line, on the lock screen and in the shade: *"17/hr · 1:29 today · split 0:02"*: your pace, time on the phone today, and your current run off it (a split is the time since you last used something that isn't allowed). It has no picture, so the card stays a single row; the ring lives in the status bar. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app adds a pacer line under its ring, with an orange mark at your usual pace for this time of day.
+**The notification** is one compact line, on the lock screen and in the shade: *"17/hr · 1:29 today · split 0:02"*: your pace, time on the phone today, and your current run off it (a split is the time since you last used something that isn't allowed). The ring lives in the status bar. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app adds a pacer line under its ring, with an orange mark at your usual pace for this time of day.
 
 **Daily summary.** One silent notification when quiet hours begin:
 
-> Phone-free overnight ✓
-> 1h 40m on phone · average 5/hr
-> 6 splits · longest 2h 15m
-> Negative split ✓ (less phone in the second half)
-> 12 min under your usual Thursday
-> +22m for people · 3 quick checks
-> Unlocked right after a split buzz: 1 of 4
-> Z  25 ✓   18/25
-> 19 unlocks — 11 for people, 3 quick checks, 5 others
+> Night: phone-free ✓
+> On phone: 1h 40m · avg 5/hr
+> Splits: 6 · longest 2:15
+> Negative split: less phone in the 2nd half ✓
+> Vs usual: −12 min
+> People: 22m
+> Quick checks: 3
+> Buzz → unlock: 1 of 4
+> Zack Zack: 25 ✓ · 18/25
 
 No streaks and no comparisons. That last line checks whether the buzz itself pulls you back to the phone; if it often does, buzzes should move to your next pickup. The app has no countdown to the next buzz either, because a timer would be one more reason to unlock. The pace clock follows the same rule: you only see it when you're already holding the phone.
 

@@ -49,8 +49,6 @@ object Icons {
         return Icon.createWithBitmap(bitmap)
     }
 
-    /** A battery-like ring: full when you've been away, draining as you use the phone. */
-    fun gauge(charge: Float): Icon = ring(charge, number = null)
 
     /** Zack Zack: a Z drawn as a bolt, same shape as the Quick Settings tile. */
     fun zack(): Icon {

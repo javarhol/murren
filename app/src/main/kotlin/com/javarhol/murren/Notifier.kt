@@ -105,20 +105,13 @@ object Notifier {
         } else {
             "${Clock.formatClock((now - p.day(p.dayKey).dayStart - onToday).coerceAtLeast(0))} off today"
         }
-        // One compact line: no picture, so the card stays a single row. The ring lives in the status bar.
+        // An ordinary notification, not a Live Update: Android gives Live Update cards a tall
+        // template, so the all-day pace stays a compact card with the number inside the ring.
         val pace = if (p.showTimeOn) "$minutes/hr" else "$minutes/hr off"
-        builder.setContentTitle("$pace · $today · split ${Clock.formatClock(split)}")
-        if (canPromote(ctx)) {
-            // Live Update: the chip shows the draining ring with the number beside it.
-            builder
-                .setSmallIcon(Icons.gauge(charge))
-                .setShortCriticalText("$minutes")
-            // Builder.setRequestPromotedOngoing isn't in the API 36 SDK; it only sets this extra.
-            builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
-        } else {
-            builder.setSmallIcon(Icons.gaugeWithNumber(charge, minutes))
-        }
-        return builder.build()
+        return builder
+            .setContentTitle("$pace · $today · split ${Clock.formatClock(split)}")
+            .setSmallIcon(Icons.gaugeWithNumber(charge, minutes))
+            .build()
     }
 
     /** A Zack Zack sprint: the chip counts down to the finish. */
@@ -130,7 +123,9 @@ object Notifier {
             .setWhen(p.sprintEnd)
             .setUsesChronometer(true)
             .setChronometerCountDown(true)
-        // The chip shows the countdown, a user-started activity with an end.
+        // A Live Update: the chip counts down. Sprints are short and user-started, so the
+        // bigger card is worth it here. Builder.setRequestPromotedOngoing isn't in the API 36
+        // SDK; it only sets this extra.
         if (canPromote(ctx)) builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
         return builder.build()
     }
@@ -150,7 +145,7 @@ object Notifier {
             val day = p.day(p.dayKey)
             val split = (now - day.lastCompulsiveEnd) / 60_000
             val today = History.todaySoFar(p, now) / 60_000
-            "${r.word}|${r.minutesPerHour}|$today|$split|${canPromote(ctx)}"
+            "${r.word}|${r.minutesPerHour}|$today|$split"
         }
         if (!force && key == lastShown) return
         lastShown = key
