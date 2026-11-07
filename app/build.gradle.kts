@@ -11,8 +11,8 @@ android {
         applicationId = "com.javarhol.murren"
         minSdk = 29
         targetSdk = 36
-        versionCode = 15
-        versionName = "0.10.1"
+        versionCode = 16
+        versionName = "0.11.0"
     }
 
     // A committed debug key keeps the signature stable across CI builds,

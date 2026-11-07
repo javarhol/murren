@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import kotlin.math.roundToInt
 
 object Notifier {
     private const val CHANNEL_PACE = "pace_clock"
@@ -18,7 +17,6 @@ object Notifier {
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
     private const val ACCENT = 0xFF6F93AD.toInt() // dusk blue
-    private const val GLOW = 0xFFF2934E.toInt() // alpenglow
     private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
     const val ACTION_HIDE = "com.javarhol.murren.HIDE_PACE"
 
@@ -102,9 +100,16 @@ object Notifier {
         val minutes = r.minutesPerHour
         val charge = Pace.fraction(p, now).toFloat()
         val split = now - p.day(p.dayKey).lastCompulsiveEnd
-        // One short line; the pace itself rides in the dot on the line below.
-        builder.setContentTitle("split ${Clock.formatClock(split)}")
-        pacerLine(builder, p, now, minutes)
+        val onToday = History.todaySoFar(p, now)
+        val today = if (p.showTimeOn) {
+            "${Clock.formatClock(onToday)} today"
+        } else {
+            "${Clock.formatClock((now - p.day(p.dayKey).dayStart - onToday).coerceAtLeast(0))} off today"
+        }
+        // Just the circle and one line: time on phone today, and your current run off it.
+        builder
+            .setContentTitle("$today · split ${Clock.formatClock(split)}")
+            .setLargeIcon(Icons.ringColored(charge, minutes, ACCENT))
         if (canPromote(ctx)) {
             // Live Update: the chip shows the draining ring with the number beside it.
             builder
@@ -118,39 +123,8 @@ object Notifier {
         return builder.build()
     }
 
-    /**
-     * The pacer line: a dot for your pace that slides back toward the phone
-     * while you use it and forward toward the mountain while you don't, with a
-     * mark at your usual pace for this time of day.
-     */
-    private fun pacerLine(builder: Notification.Builder, p: Prefs, now: Long, minutes: Int) {
-        val usual = History.usualPace(p, History.ghost(p, p.dayKey), now)
-        val dot = (Pace.track(Pace.onPerHour(p, now)) * 100).roundToInt()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
-            builder.setProgress(100, dot, false)
-            return
-        }
-        val style = Notification.ProgressStyle()
-            .setStyledByProgress(true)
-            .setProgressSegments(listOf(Notification.ProgressStyle.Segment(100).setColor(ACCENT)))
-            .setProgress(dot)
-            .setProgressTrackerIcon(Icons.dotNumber(minutes, ACCENT))
-            .setProgressStartIcon(Icons.phone())
-            .setProgressEndIcon(Icons.mountain())
-        usual?.let {
-            val mark = (Pace.track(it.toDouble()) * 100).roundToInt().coerceIn(1, 99)
-            style.addProgressPoint(Notification.ProgressStyle.Point(mark).setColor(GLOW))
-        }
-        builder.setStyle(style)
-    }
-
-    /**
-     * A Zack Zack sprint: the chip counts down, and the line runs from start
-     * to the mountain at the finish.
-     */
+    /** A Zack Zack sprint: the chip counts down to the finish. */
     private fun sprint(ctx: Context, builder: Notification.Builder, p: Prefs, now: Long): Notification {
-        val total = (p.sprintEnd - p.sprintStart).coerceAtLeast(1)
-        val done = (((now - p.sprintStart).toDouble() / total) * 100).roundToInt().coerceIn(0, 100)
         builder
             .setSmallIcon(Icons.zack())
             .setContentTitle("Zack Zack")
@@ -158,18 +132,6 @@ object Notifier {
             .setWhen(p.sprintEnd)
             .setUsesChronometer(true)
             .setChronometerCountDown(true)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            builder.setStyle(
-                Notification.ProgressStyle()
-                    .setStyledByProgress(true)
-                    .setProgressSegments(listOf(Notification.ProgressStyle.Segment(100).setColor(GLOW)))
-                    .setProgress(done)
-                    .setProgressTrackerIcon(Icons.dot(GLOW))
-                    .setProgressEndIcon(Icons.mountain()),
-            )
-        } else {
-            builder.setProgress(100, done, false)
-        }
         // The chip shows the countdown, a user-started activity with an end.
         if (canPromote(ctx)) builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
         return builder.build()
@@ -182,15 +144,15 @@ object Notifier {
         if (p.hiddenDay == p.dayKey && !force) return // you swiped it away today
         val now = Clock.now()
         val key = if (Sprint.active(p, now)) {
-            "sprint|${p.sprintEnd}|${(now - p.sprintStart) * 20 / (p.sprintEnd - p.sprintStart).coerceAtLeast(1)}"
+            "sprint|${p.sprintEnd}"
         } else if (Clock.inQuiet(p, now)) {
             "quiet"
         } else {
             val r = Pace.reading(p, now)
             val day = p.day(p.dayKey)
             val split = (now - day.lastCompulsiveEnd) / 60_000
-            val mark = History.usualPace(p, History.ghost(p, p.dayKey), now)
-            "${r.word}|${r.minutesPerHour}|$mark|$split|${canPromote(ctx)}"
+            val today = History.todaySoFar(p, now) / 60_000
+            "${r.word}|${r.minutesPerHour}|$today|$split|${canPromote(ctx)}"
         }
         if (!force && key == lastShown) return
         lastShown = key

@@ -25,7 +25,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 
 **Zack Zack sprints.** Named for the Swiss-German *"zack zack!"* (quick, snap to it) from the football pitch: phone down, now.
 - Start one from the **Zack Zack** Quick Settings tile (tap again to stop) or from the app: 15, 25 or 45 minutes.
-- While it runs, the status bar chip counts down and the lock screen line runs toward the mountain.
+- While it runs, the status bar chip and the lock screen count down.
 - Make it to the end without using the phone and you get the zack-zack buzz (two sharp taps, twice).
 - Allowed apps and quick checks don't break a sprint. Anything else ends it there, logged as how far you got ("18/25"), no failure message.
 - A sprint is something you start with a clear end, which is exactly what Android's Live Updates are meant for.
@@ -54,7 +54,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
-**The notification** is one short line and a **pacer line**: *"split 0:15"*, then a line from a phone (left) to the mountain (right). The dot carries your pace number and sits where the ring would be filled: it slides back toward the phone while you use it and forward toward the mountain while you don't. An orange mark shows your usual pace for this time of day, so you can see whether you're ahead or behind. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app shows the same line.
+**The notification** is just the ring and one line: *"1:40 today · split 0:15"*, your time on the phone today and your current run off it (a split is the time since you last used something that isn't allowed). Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app adds a pacer line under its ring, with an orange mark at your usual pace for this time of day.
 
 **Daily summary.** One silent notification when quiet hours begin:
 

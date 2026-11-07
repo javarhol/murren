@@ -66,52 +66,13 @@ object Icons {
         return Icon.createWithBitmap(bitmap)
     }
 
-    /** The pacer line's dot with your pace inside, like the bubble on a running watch's pacer bar. */
-    fun dotNumber(value: Int, color: Int): Icon {
-        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val c = SIZE / 2f
-        canvas.drawCircle(c, c, SIZE * 0.5f, paint())
-        canvas.drawCircle(c, c, SIZE * 0.44f, paint().apply { this.color = color })
-        val text = value.toString()
-        val t = paint().apply {
-            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-            textAlign = Paint.Align.CENTER
-            textSize = SIZE * 0.62f
-        }
-        t.textSize *= minOf(1f, SIZE * 0.7f / t.measureText(text))
-        canvas.drawText(text, c, c - (t.descent() + t.ascent()) / 2f, t)
-        return Icon.createWithBitmap(bitmap)
-    }
-
-    /** The pacer line's moving dot: a filled circle with a white rim. */
-    fun dot(color: Int): Icon {
-        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val c = SIZE / 2f
-        canvas.drawCircle(c, c, SIZE * 0.46f, paint())
-        canvas.drawCircle(c, c, SIZE * 0.34f, paint().apply { this.color = color })
-        return Icon.createWithBitmap(bitmap)
-    }
-
-    /** A small phone, for the "on the phone" end of the pacer line. */
-    fun phone(): Icon {
-        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val w = SIZE * 0.46f
-        val h = SIZE * 0.8f
-        val left = (SIZE - w) / 2
-        val top = (SIZE - h) / 2
-        val body = paint().apply { style = Paint.Style.STROKE; strokeWidth = SIZE * 0.09f }
-        canvas.drawRoundRect(left, top, left + w, top + h, SIZE * 0.1f, SIZE * 0.1f, body)
-        canvas.drawCircle(SIZE / 2f, top + h - SIZE * 0.12f, SIZE * 0.045f, paint())
-        return Icon.createWithBitmap(bitmap)
-    }
-
     /** The ring with the number inside, for when Android can't show text beside the icon. */
     fun gaugeWithNumber(charge: Float, value: Int): Icon = ring(charge, number = value.toString())
 
-    private fun ring(charge: Float, number: String?): Icon {
+    /** The same ring and number in color, for the notification's large icon. */
+    fun ringColored(charge: Float, value: Int, color: Int): Icon = ring(charge, value.toString(), color)
+
+    private fun ring(charge: Float, number: String?, color: Int? = null): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val c = SIZE / 2f
@@ -120,6 +81,7 @@ object Icons {
         val r = c - stroke / 2 - SIZE * 0.02f
         val oval = android.graphics.RectF(c - r, c - r, c + r, c + r)
         val p = paint().apply { style = Paint.Style.STROKE; strokeWidth = stroke }
+        color?.let { p.color = it }
         p.alpha = 80
         canvas.drawCircle(c, c, r, p)
         p.alpha = 255
@@ -130,6 +92,7 @@ object Icons {
                 textAlign = Paint.Align.CENTER
                 textSize = SIZE * 0.52f
             }
+            color?.let { t.color = it }
             t.textSize *= minOf(1f, (2 * r - stroke) * 0.92f / t.measureText(number))
             canvas.drawText(number, c, c - (t.descent() + t.ascent()) / 2f, t)
         }
