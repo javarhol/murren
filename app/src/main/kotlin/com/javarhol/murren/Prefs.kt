@@ -48,8 +48,8 @@ class Prefs(context: Context) {
     var restStart by Pref(sp, "restStart", 0L)
     var nights by Pref(sp, "nights", "")
 
-    // Pace clock: smoothed fraction of time off the phone, as of paceAt
-    var pace by Pref(sp, "pace", 1f)
+    // Pace clock: whether you're on the phone since paceAt, and recent stretches on it
+    var onLog by Pref(sp, "onLog", "") // start,end;... within the last hour
     var paceAt by Pref(sp, "paceAt", 0L)
     var paceOn by Pref(sp, "paceOn", false)
 

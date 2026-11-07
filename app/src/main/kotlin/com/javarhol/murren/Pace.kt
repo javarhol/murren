@@ -1,26 +1,33 @@
 package com.javarhol.murren
 
-import kotlin.math.exp
-import kotlin.math.ln
 import kotlin.math.roundToInt
 
 /**
- * The pace clock: a smoothed share of time spent off the phone.
- *
- * It's an exponential moving average with a 45-minute half-life, so it ticks
- * down about a minute per minute while you scroll something not on your
- * allowlist, and starts climbing back the moment you put the phone down.
+ * The pace clock: minutes on the phone in the last 60 minutes, exactly what
+ * "/hr" says. It rises a minute per minute while you're in something not on
+ * your allowlist, and falls as those minutes roll out of the hour, so an hour
+ * away always reads 0.
  */
 object Pace {
-    private const val HALF_LIFE_MS = 45 * 60_000.0
-    private val DECAY = ln(2.0) / HALF_LIFE_MS
+    private const val WINDOW_MS = 60 * 60_000L
 
-    fun fraction(p: Prefs, now: Long): Double {
-        if (p.paceAt == 0L) return 1.0
-        val target = if (p.paceOn) 0.0 else 1.0
-        val elapsed = (now - p.paceAt).coerceAtLeast(0)
-        return target + (p.pace - target) * exp(-DECAY * elapsed)
+    private data class Span(val start: Long, val end: Long)
+
+    private fun spans(p: Prefs): List<Span> =
+        p.onLog.split(';').filter { it.isNotBlank() }.mapNotNull { row ->
+            val f = row.split(',').mapNotNull { it.toLongOrNull() }
+            if (f.size == 2) Span(f[0], f[1]) else null
+        }
+
+    /** Time on the phone (ms) within the hour before [now], including a stretch still in progress. */
+    private fun onInLastHour(p: Prefs, now: Long): Long {
+        val from = now - WINDOW_MS
+        val open = if (p.paceOn && p.paceAt > 0) listOf(Span(p.paceAt, now)) else emptyList()
+        return (spans(p) + open).sumOf { (minOf(it.end, now) - maxOf(it.start, from)).coerceAtLeast(0) }
     }
+
+    /** Share of the last hour spent off the phone, 0..1. */
+    fun fraction(p: Prefs, now: Long): Double = 1 - onInLastHour(p, now).toDouble() / WINDOW_MS
 
     fun minutesPerHour(p: Prefs, now: Long): Int = (fraction(p, now) * 60).roundToInt()
 
@@ -53,10 +60,13 @@ object Pace {
 
     fun onPerHour(p: Prefs, now: Long): Double = (1 - fraction(p, now)) * 60
 
-    /** Switch between on the phone and off it, settling the average up to now. */
+    /** Switch between on the phone and off it, logging the stretch on it that just ended. */
     fun setOnPhone(p: Prefs, now: Long, on: Boolean) {
         if (p.paceAt != 0L && p.paceOn == on) return
-        p.pace = fraction(p, now).toFloat()
+        if (p.paceOn && p.paceAt > 0 && now > p.paceAt) {
+            val kept = spans(p).filter { it.end > now - WINDOW_MS } + Span(p.paceAt, now)
+            p.onLog = kept.joinToString(";") { "${it.start},${it.end}" }
+        }
         p.paceAt = now
         p.paceOn = on
     }

@@ -38,11 +38,11 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 
 **Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows the same compact notification.
 
-- While you're in an app that isn't allowed, the number **counts up live**, about a minute per minute, like a taxi meter.
-- Put the phone down and it **starts falling right away**. When you next pick the phone up, the lock screen shows the time you've earned back.
+- While you're in an app that isn't allowed, the number **counts up live**, a minute per minute, like a taxi meter.
+- Put the phone down and it **falls as those minutes roll out of the hour**. When you next pick the phone up, the lock screen shows the time you've earned back.
 - Allowed apps never count. It's hidden during quiet hours.
 - A switch in Settings flips it to time *off* phone ("54 min off phone / hour"), where higher is better.
-- Under the hood: an exponential moving average of time on the phone, with a 45-minute half-life.
+- Under the hood: minutes on the phone in the last 60 minutes, so an hour away always reads 0.
 - On Android 16+, it's a Live Update chip. If Live Updates are turned off for Mürren, the number is drawn as the status bar icon instead.
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
