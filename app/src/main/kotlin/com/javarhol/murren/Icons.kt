@@ -88,7 +88,7 @@ object Icons {
         canvas.drawArc(oval, -90f, 360f * charge.coerceIn(0f, 1f), false, p)
         if (number != null) {
             val t = paint().apply {
-                typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+                typeface = Typeface.DEFAULT_BOLD
                 textAlign = Paint.Align.CENTER
                 textSize = SIZE * 0.52f
             }

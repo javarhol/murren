@@ -47,7 +47,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - It replaces the "Running quietly" notification Android requires anyway. It never makes a sound.
 
 **The main screen** is a watch face for the day (dark or light, following your phone):
-- **Pace**, in big condensed numerals inside the same draining ring.
+- **Pace**, big, inside the same draining ring. Colors are Material You's (from your wallpaper and theme, Android 12+) and type is the system font.
 - **Pacer line**: the same line as the notification, with your minutes under (−) or over (+) your usual day above the dot.
 - **Average today · current split · splits so far**, side by side.
 - **Race**: today's running total of time on phone against the ghost of your usual day (the same weekday over the last 4 weeks, or the last 7 days early on).
@@ -104,7 +104,3 @@ Builds are signed with the committed debug key, so a new APK installs over the o
 - **Multi-day fading**: phases that move from 30/60/120 to 60/120, then 120 only, then rare random buzzes, then summary only, advancing on a rolling 3-day window (about 66 days is the median for a habit to stick).
 - **Pause before chosen apps** (one sec style): a short breathing overlay, no typing.
 - **Watch rewards**: buzz on the wrist instead of the phone (Pebble first). Probably the path to iPhone, where apps can't detect unlocks or vibrate from the background.
-
-## Credits
-
-Numerals are set in [Barlow Condensed](https://github.com/jpt/barlow) by Jeremy Tribby, licensed under the SIL Open Font License 1.1 (`app/src/main/assets/fonts/OFL.txt`).

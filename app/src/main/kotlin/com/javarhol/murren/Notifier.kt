@@ -16,7 +16,6 @@ object Notifier {
     private val OLD_CHANNELS = listOf("service", "pace")
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
-    private const val ACCENT = 0xFF6F93AD.toInt() // dusk blue
     private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
     const val ACTION_HIDE = "com.javarhol.murren.HIDE_PACE"
 
@@ -109,7 +108,7 @@ object Notifier {
         // Just the circle and one line: time on phone today, and your current run off it.
         builder
             .setContentTitle("$today · split ${Clock.formatClock(split)}")
-            .setLargeIcon(Icons.ringColored(charge, minutes, ACCENT))
+            .setLargeIcon(Icons.ringColored(charge, minutes, Style.notificationAccent(ctx)))
         if (canPromote(ctx)) {
             // Live Update: the chip shows the draining ring with the number beside it.
             builder
