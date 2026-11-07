@@ -36,7 +36,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - No buzzes overnight.
 - Get through the whole night phone-free and you get a distinct **morning buzz** when quiet hours end, plus "Phone-free overnight ✓" in that day's summary.
 
-**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The lock screen shows the same notification.
+**Pace clock.** Like a running pace: get your number down. Your status bar shows a **ring that drains like a battery** as you use the phone (and refills while you're away), with your pace beside it: **◔ 6**. The notification is kept off the lock screen; the status bar ring is all you see there.
 
 - While you're in an app that isn't allowed, the number **counts up live**, about a minute per minute, like a taxi meter.
 - Put the phone down and it **starts falling right away**. When you next pick the phone up, the lock screen shows the time you've earned back.
@@ -54,7 +54,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
-**The notification** is just the ring and one line: *"1:40 today · split 0:15"*, your time on the phone today and your current run off it (a split is the time since you last used something that isn't allowed). Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app adds a pacer line under its ring, with an orange mark at your usual pace for this time of day.
+**The notification** (in the shade, not on the lock screen) is just the ring and one line: *"1:40 today · split 0:15"*, your time on the phone today and your current run off it (a split is the time since you last used something that isn't allowed). Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app adds a pacer line under its ring, with an orange mark at your usual pace for this time of day.
 
 **Daily summary.** One silent notification when quiet hours begin:
 

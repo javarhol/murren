@@ -11,9 +11,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 
 object Notifier {
-    private const val CHANNEL_PACE = "pace_clock"
+    private const val CHANNEL_PACE = "pace_status_bar"
     private const val CHANNEL_SUMMARY = "summary"
-    private val OLD_CHANNELS = listOf("service", "pace")
+    private val OLD_CHANNELS = listOf("service", "pace", "pace_clock")
     const val ID_PACE = 1
     private const val ID_SUMMARY = 2
     private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
@@ -29,8 +29,9 @@ object Notifier {
             // DEFAULT, with sound and vibration off: LOW and MIN count as "silent", which the
             // lock screen hides by default. Channel importance is fixed once created.
             NotificationChannel(CHANNEL_PACE, "Pace clock", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "Your pace in the status bar and on the lock screen. Never makes a sound."
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                description = "Your pace in the status bar. Kept off the lock screen. Never makes a sound."
+                // Off the lock screen: the ring in the status bar is enough there.
+                lockscreenVisibility = Notification.VISIBILITY_SECRET
                 setSound(null, null)
                 enableVibration(false)
                 enableLights(false)
@@ -82,7 +83,7 @@ object Notifier {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
-            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .setVisibility(Notification.VISIBILITY_SECRET)
             .setContentIntent(openApp(ctx))
             .setDeleteIntent(onSwipe(ctx))
 
