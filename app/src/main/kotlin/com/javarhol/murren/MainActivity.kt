@@ -153,8 +153,8 @@ class MainActivity : Activity() {
         content.addView(
             PacerBar(
                 this,
-                position = Pace.track(Pace.onPerHour(p, now), usual),
-                usualPosition = usual?.let { Pace.track(it.toDouble(), it) },
+                position = Pace.track(Pace.onPerHour(p, now)),
+                usualPosition = usual?.let { Pace.track(it.toDouble()) },
                 label = Notifier.minutesUnderUsual(p, now)?.let { Notifier.delta(it) },
                 pal = pal,
             ),

@@ -46,13 +46,10 @@ object Pace {
 
     /**
      * Where the dot sits on the pacer line, from 0 (left, by the phone) to 1
-     * (right, by the mountain). The line spans 0 to 30 min/hr, or more if your
-     * usual pace is high, so everyday movement is easy to see.
+     * (right, by the mountain): the share of the hour you're off the phone, so
+     * the line is the ring unrolled and both always agree.
      */
-    fun track(onPerHour: Double, usualOn: Int?): Float {
-        val max = maxOf(30.0, (usualOn ?: 0) * 2.5)
-        return (1 - onPerHour / max).coerceIn(0.0, 1.0).toFloat()
-    }
+    fun track(onPerHour: Double): Float = (1 - onPerHour / 60).coerceIn(0.0, 1.0).toFloat()
 
     fun onPerHour(p: Prefs, now: Long): Double = (1 - fraction(p, now)) * 60
 

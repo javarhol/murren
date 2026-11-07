@@ -66,6 +66,24 @@ object Icons {
         return Icon.createWithBitmap(bitmap)
     }
 
+    /** The pacer line's dot with your pace inside, like the bubble on a running watch's pacer bar. */
+    fun dotNumber(value: Int, color: Int): Icon {
+        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val c = SIZE / 2f
+        canvas.drawCircle(c, c, SIZE * 0.5f, paint())
+        canvas.drawCircle(c, c, SIZE * 0.44f, paint().apply { this.color = color })
+        val text = value.toString()
+        val t = paint().apply {
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            textSize = SIZE * 0.62f
+        }
+        t.textSize *= minOf(1f, SIZE * 0.7f / t.measureText(text))
+        canvas.drawText(text, c, c - (t.descent() + t.ascent()) / 2f, t)
+        return Icon.createWithBitmap(bitmap)
+    }
+
     /** The pacer line's moving dot: a filled circle with a white rim. */
     fun dot(color: Int): Icon {
         val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
@@ -87,22 +105,6 @@ object Icons {
         val body = paint().apply { style = Paint.Style.STROKE; strokeWidth = SIZE * 0.09f }
         canvas.drawRoundRect(left, top, left + w, top + h, SIZE * 0.1f, SIZE * 0.1f, body)
         canvas.drawCircle(SIZE / 2f, top + h - SIZE * 0.12f, SIZE * 0.045f, paint())
-        return Icon.createWithBitmap(bitmap)
-    }
-
-    /** The ring in color, for the notification's large icon. */
-    fun gaugeColored(charge: Float, color: Int): Icon {
-        val bitmap = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val c = SIZE / 2f
-        val stroke = SIZE * 0.16f
-        val r = c - stroke / 2 - SIZE * 0.04f
-        val p = paint().apply { style = Paint.Style.STROKE; strokeWidth = stroke; strokeCap = Paint.Cap.ROUND }
-        p.color = color
-        p.alpha = 70
-        canvas.drawCircle(c, c, r, p)
-        p.alpha = 255
-        canvas.drawArc(android.graphics.RectF(c - r, c - r, c + r, c + r), -90f, 360f * charge.coerceIn(0.01f, 1f), false, p)
         return Icon.createWithBitmap(bitmap)
     }
 

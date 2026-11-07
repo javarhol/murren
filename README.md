@@ -54,7 +54,7 @@ screen off ──30m──▶ split buzz ──60m──▶ split buzz ──120
 - **Splits**: numbered like laps, with a dot for each split buzz.
 - **Finish**: the day's summary.
 
-**The notification** says as little as possible: *"6 min/hr"* over *"split 1:12"*, with the draining ring beside it, and a **pacer line** across the bottom, phone on the left and mountain on the right. The dot is your pace: it slides back toward the phone while you use it and forward toward the mountain while you don't. An orange mark shows your usual pace for this time of day, so you can see whether you're ahead or behind. The app shows the same line. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked.
+**The notification** is one short line and a **pacer line**: *"split 0:15"*, then a line from a phone (left) to the mountain (right). The dot carries your pace number and sits where the ring would be filled: it slides back toward the phone while you use it and forward toward the mountain while you don't. An orange mark shows your usual pace for this time of day, so you can see whether you're ahead or behind. Swipe it away and it stays hidden until the next morning (opening the app brings it back); your pace is still tracked. The app shows the same line.
 
 **Daily summary.** One silent notification when quiet hours begin:
 
