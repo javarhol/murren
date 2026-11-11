@@ -9,7 +9,7 @@ object Summary {
         if (day.dayStart == 0L) return listOf("Today" to "–")
         val end = if (day.dayEnd > 0) day.dayEnd else now
         val awake = (end - day.dayStart).coerceAtLeast(1)
-        val onPhone = minOf(day.compulsiveMs, awake)
+        val onPhone = minOf(if (key == p.dayKey && day.dayEnd == 0L) History.todaySoFar(p, now) else History.dayTotal(day), awake)
         val longest = maxOf(day.longestMs, end - day.lastCompulsiveEnd)
         val avg = (onPhone / 60_000.0 / (awake / 3_600_000.0)).roundToInt()
 

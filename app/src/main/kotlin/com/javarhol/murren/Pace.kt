@@ -66,6 +66,9 @@ object Pace {
         if (p.paceOn && p.paceAt > 0 && now > p.paceAt) {
             val kept = spans(p).filter { it.end > now - WINDOW_MS } + Span(p.paceAt, now)
             p.onLog = kept.joinToString(";") { "${it.start},${it.end}" }
+            // The same stretch counts toward today, so the pace and the day total always agree.
+            val day = p.day(p.dayKey)
+            History.addOnTime(day, maxOf(p.paceAt, day.dayStart), now)
         }
         p.paceAt = now
         p.paceOn = on
@@ -75,8 +78,7 @@ object Pace {
     fun projectedOffToday(p: Prefs, now: Long): Long {
         val day = p.day(p.dayKey)
         if (day.dayStart == 0L) return 0
-        val currentSession = if (p.sessionOpen && p.paceOn) now - p.sessionStart else 0
-        val offSoFar = (now - day.dayStart - day.compulsiveMs - currentSession).coerceAtLeast(0)
+        val offSoFar = (now - day.dayStart - History.todaySoFar(p, now)).coerceAtLeast(0)
         return offSoFar + ((dayEnd(p, now) - now) * fraction(p, now)).toLong()
     }
 }

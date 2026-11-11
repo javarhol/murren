@@ -50,6 +50,9 @@ object History {
         day.hourly = buckets.joinToString(",")
     }
 
+    /** Time on the phone (ms) for a whole day; days before the hourly record fall back to the session total. */
+    fun dayTotal(day: Day): Long = if (day.hourly.isBlank()) day.compulsiveMs else hourly(day).sum()
+
     /** Minutes of the day counted from 04:00, so evenings past midnight stay in order. */
     fun dayMinute(ms: Long) = (Clock.minuteOfDay(ms) - DAY_ORIGIN_MIN + 1440) % 1440
 
@@ -67,10 +70,11 @@ object History {
         return sum
     }
 
-    /** Today's running total right now, including the session in progress. */
+    /** Today's time on the phone right now, from the same log as the pace, including a stretch in progress. */
     fun todaySoFar(p: Prefs, now: Long): Long {
-        val open = if (p.sessionOpen && p.paceOn) now - p.sessionStart else 0
-        return cumulative(hourly(p.day(p.dayKey)), dayMinute(now)) + open
+        val day = p.day(p.dayKey)
+        val open = if (p.paceOn && p.paceAt > 0) (now - maxOf(p.paceAt, day.dayStart)).coerceAtLeast(0) else 0
+        return cumulative(hourly(day), dayMinute(now)) + open
     }
 
     // --- The ghost: your usual day ---

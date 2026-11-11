@@ -87,7 +87,6 @@ object Engine {
                 day.compulsiveMs += now - start
                 day.longestMs = maxOf(day.longestMs, start - day.lastCompulsiveEnd)
                 History.addSplit(day, day.lastCompulsiveEnd, start, p.splitRungs)
-                History.addOnTime(day, start, now)
                 p.splitRungs = 0
                 day.lastCompulsiveEnd = now
             }
